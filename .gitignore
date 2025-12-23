@@ -1,0 +1,47 @@
+# Byte-compiled / cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+env/
+.venv/
+
+# IDE/editor
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Python egg / dist
+*.egg
+*.egg-info/
+dist/
+build/
+*.whl
+
+# Mac/Linux hidden files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Data folders (clouds, datasets, outputs)
+data/
+*.ply
+*.txt
+*.npz
+*.pcd
+*.ply
+
+# Qt Designer UI backup
+*.ui~
+
+# PyInstaller / packaging
+*.spec
+
+# Temporary files
+*.tmp
+*.swp
