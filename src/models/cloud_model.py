@@ -3,15 +3,6 @@ from matplotlib.path import Path
 import open3d as o3d
 from scipy.spatial import Delaunay
 
-# View (vẽ polygon)
-#    ↓
-# Controller (quyết định create segment)
-#    ↓
-# CloudModel.select_indices_by_polygon()
-#    ↓
-# Controller.create_segment(indices, polygon, dir)
-#    ↓
-# CloudModel.add_segment(segment)
 
 class CloudModel:
     def __init__(self):

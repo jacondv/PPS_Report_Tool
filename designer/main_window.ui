@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1050</width>
-    <height>768</height>
+    <width>944</width>
+    <height>761</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,7 +18,7 @@
 </string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QHBoxLayout" name="horizontalLayout">
+   <layout class="QVBoxLayout" name="verticalLayout_4">
     <item>
      <widget class="QWidget" name="cloud_viewer" native="true"/>
     </item>
@@ -99,7 +99,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1050</width>
+     <width>944</width>
      <height>24</height>
     </rect>
    </property>

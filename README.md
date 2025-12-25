@@ -84,3 +84,8 @@ python -c "import numpy, pandas, open3d, PySide6, weasyprint, jinja2, pydyf, rep
 ```cmd
 pyside6-designer
 ```
+
+# Export ui to py
+```cmd
+pyside6-uic file.ui -o file_ui.py
+```
