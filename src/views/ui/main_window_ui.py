@@ -18,15 +18,15 @@ from PySide6.QtGui import (QAction, QBrush, QColor, QConicalGradient,
     QTransform)
 from PySide6.QtWidgets import (QApplication, QDockWidget, QHBoxLayout, QHeaderView,
     QListWidget, QListWidgetItem, QMainWindow, QMenu,
-    QMenuBar, QSizePolicy, QSplitter, QStatusBar,
-    QToolBar, QTreeWidget, QTreeWidgetItem, QVBoxLayout,
-    QWidget)
+    QMenuBar, QPushButton, QSizePolicy, QSpacerItem,
+    QSplitter, QStatusBar, QToolBar, QTreeWidget,
+    QTreeWidgetItem, QVBoxLayout, QWidget)
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(1050, 768)
+        MainWindow.resize(944, 761)
         MainWindow.setStyleSheet(u"border: 1px solid rgb(170, 170, 170);\n"
 "")
         self.actionOpen_Job = QAction(MainWindow)
@@ -45,12 +45,12 @@ class Ui_MainWindow(object):
         self.actionCreate_Report.setMenuRole(QAction.NoRole)
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
-        self.horizontalLayout = QHBoxLayout(self.centralwidget)
-        self.horizontalLayout.setObjectName(u"horizontalLayout")
+        self.verticalLayout_4 = QVBoxLayout(self.centralwidget)
+        self.verticalLayout_4.setObjectName(u"verticalLayout_4")
         self.cloud_viewer = QWidget(self.centralwidget)
         self.cloud_viewer.setObjectName(u"cloud_viewer")
 
-        self.horizontalLayout.addWidget(self.cloud_viewer)
+        self.verticalLayout_4.addWidget(self.cloud_viewer)
 
         MainWindow.setCentralWidget(self.centralwidget)
         self.statusbar = QStatusBar(MainWindow)
@@ -112,12 +112,75 @@ class Ui_MainWindow(object):
         MainWindow.addToolBar(Qt.TopToolBarArea, self.toolBar)
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 1050, 24))
+        self.menubar.setGeometry(QRect(0, 0, 944, 24))
         self.menuFile = QMenu(self.menubar)
         self.menuFile.setObjectName(u"menuFile")
         self.menuView = QMenu(self.menubar)
         self.menuView.setObjectName(u"menuView")
         MainWindow.setMenuBar(self.menubar)
+        self.dockWidget_4 = QDockWidget(MainWindow)
+        self.dockWidget_4.setObjectName(u"dockWidget_4")
+        self.dockWidget_4.setFeatures(QDockWidget.DockWidgetFeatureMask)
+        self.dockWidget_4.setAllowedAreas(Qt.AllDockWidgetAreas)
+        self.dockWidgetContents_8 = QWidget()
+        self.dockWidgetContents_8.setObjectName(u"dockWidgetContents_8")
+        self.horizontalLayout = QHBoxLayout(self.dockWidgetContents_8)
+        self.horizontalLayout.setObjectName(u"horizontalLayout")
+        self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
+        self.widget = QWidget(self.dockWidgetContents_8)
+        self.widget.setObjectName(u"widget")
+        sizePolicy = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.widget.sizePolicy().hasHeightForWidth())
+        self.widget.setSizePolicy(sizePolicy)
+        self.horizontalLayout_2 = QHBoxLayout(self.widget)
+        self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
+        self.btnSegmentIn = QPushButton(self.widget)
+        self.btnSegmentIn.setObjectName(u"btnSegmentIn")
+        sizePolicy1 = QSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+        sizePolicy1.setHorizontalStretch(0)
+        sizePolicy1.setVerticalStretch(0)
+        sizePolicy1.setHeightForWidth(self.btnSegmentIn.sizePolicy().hasHeightForWidth())
+        self.btnSegmentIn.setSizePolicy(sizePolicy1)
+        self.btnSegmentIn.setMinimumSize(QSize(0, 32))
+
+        self.horizontalLayout_2.addWidget(self.btnSegmentIn)
+
+        self.btnSegmentOut = QPushButton(self.widget)
+        self.btnSegmentOut.setObjectName(u"btnSegmentOut")
+        sizePolicy1.setHeightForWidth(self.btnSegmentOut.sizePolicy().hasHeightForWidth())
+        self.btnSegmentOut.setSizePolicy(sizePolicy1)
+        self.btnSegmentOut.setMinimumSize(QSize(0, 32))
+        self.btnSegmentOut.setFlat(False)
+
+        self.horizontalLayout_2.addWidget(self.btnSegmentOut)
+
+        self.btnExportSelected = QPushButton(self.widget)
+        self.btnExportSelected.setObjectName(u"btnExportSelected")
+        sizePolicy1.setHeightForWidth(self.btnExportSelected.sizePolicy().hasHeightForWidth())
+        self.btnExportSelected.setSizePolicy(sizePolicy1)
+        self.btnExportSelected.setMinimumSize(QSize(0, 32))
+
+        self.horizontalLayout_2.addWidget(self.btnExportSelected)
+
+        self.btnClear = QPushButton(self.widget)
+        self.btnClear.setObjectName(u"btnClear")
+        sizePolicy1.setHeightForWidth(self.btnClear.sizePolicy().hasHeightForWidth())
+        self.btnClear.setSizePolicy(sizePolicy1)
+        self.btnClear.setMinimumSize(QSize(0, 32))
+
+        self.horizontalLayout_2.addWidget(self.btnClear)
+
+        self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_2.addItem(self.horizontalSpacer)
+
+
+        self.horizontalLayout.addWidget(self.widget)
+
+        self.dockWidget_4.setWidget(self.dockWidgetContents_8)
+        MainWindow.addDockWidget(Qt.TopDockWidgetArea, self.dockWidget_4)
 
         self.toolBar.addAction(self.actionOpen_Job)
         self.toolBar.addAction(self.actionAlign_Cloud)
@@ -140,5 +203,10 @@ class Ui_MainWindow(object):
         self.toolBar.setWindowTitle(QCoreApplication.translate("MainWindow", u"toolBar", None))
         self.menuFile.setTitle(QCoreApplication.translate("MainWindow", u"File", None))
         self.menuView.setTitle(QCoreApplication.translate("MainWindow", u"View", None))
+        self.dockWidget_4.setWindowTitle("")
+        self.btnSegmentIn.setText(QCoreApplication.translate("MainWindow", u"Segment In", None))
+        self.btnSegmentOut.setText(QCoreApplication.translate("MainWindow", u"Segment Out", None))
+        self.btnExportSelected.setText(QCoreApplication.translate("MainWindow", u"Export Selected", None))
+        self.btnClear.setText(QCoreApplication.translate("MainWindow", u"Clear", None))
     # retranslateUi
 
