@@ -1,0 +1,134 @@
+import os
+# from weasyprint import HTML
+import pdfkit
+
+from pps_shared.tunnel_report.template_manager import render_template
+from pps_shared.tunnel_report.report_data_model import ReportData
+from pps_shared.tunnel_report.report_utils import PLYProcessor
+from datetime import datetime
+
+from paths import LOGO_REPORT_FILE_PATH, WKHTMLTOPDF_PATH_EXE
+
+class ReportGenerator:
+    def __init__(self):
+        self.site_name=None  
+        self.job_name=None      
+        self.applied_thickness=30
+        self.tolerance=10
+        self.date = datetime.now().strftime("%d/%m/%Y")
+        self.time = datetime.now().strftime("%H:%M:%S")
+        self.create_date = datetime.now().strftime("%d/%m/%Y")
+        self.tunnel_view_image = None
+        # pdfkit config
+        self.pdf_config = pdfkit.configuration(
+            wkhtmltopdf=str(WKHTMLTOPDF_PATH_EXE)
+        )
+
+    def set_info(self, site_name="Unknown", job_name="Unknown",operator="Unknown",date=None, time=None,applied_thickness=30,tolerance=10):
+        self.site_name=site_name
+        self.job_name=job_name
+        self.applied_thickness=applied_thickness
+        self.tolerance=tolerance
+        self.date = date or self.date
+        self.time = time or self.time
+        self.create_date = datetime.now().strftime("%d/%m/%Y")
+        self.operator=operator
+
+    def set_tunnel_view_image(self, image):
+        self.tunnel_view_image = image
+
+    def get_info(self) -> dict:
+        return {
+            "site_name": self.site_name,
+            "job_name": self.job_name,
+            "applied_thickness": self.applied_thickness,
+            "tolerance": self.tolerance,
+            "date": self.date,
+            "time": self.time,
+            "create_date": self.create_date,
+            self.operator:"Unknown"
+        }
+
+
+    def create_pdf(self, report_data, output_path, debug_html=True):
+        try:
+            os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
+            html_content = render_template(
+                "tunnel_report.html",
+                data=report_data
+            )
+
+            options = {
+                "enable-local-file-access": "",
+                "encoding": "UTF-8",
+                "page-size": "A4",
+                "margin-top": "10mm",
+                "margin-bottom": "10mm",
+                "margin-left": "10mm",
+                "margin-right": "10mm",
+            }
+
+            pdfkit.from_string(
+                html_content,
+                output_path,
+                configuration=self.pdf_config,
+                options=options
+            )
+
+            if debug_html:
+                debug_path = output_path.replace(".pdf", ".html")
+                with open(debug_path, "w", encoding="utf-8") as f:
+                    f.write(html_content)
+                print(f"[ReportGenerator] Saved intermediate HTML to: {debug_path}")
+
+        except Exception as e:
+            print(f"[ReportGenerator] Failed to create PDF at {output_path}: {e}")
+
+    def export(self,pcd,output_path=None):
+
+        #initial data to test
+        site_name= self.site_name
+        job_name = self.job_name
+        tolerance = self.tolerance
+        applied_thickness = self.applied_thickness
+        date =  self.date
+        time = self.time
+        bins = [applied_thickness-tolerance, applied_thickness+tolerance]
+
+        processor = PLYProcessor()
+        processor.load(pcd)
+        processor.set_parameters(
+            target_thickness=applied_thickness,
+            tolerance=tolerance
+        )
+
+        #---------------------
+        thickness_chart_img = processor.export_distribution_chart(bins=bins, save_path=None)
+        # tunnel_view_img = f"{BASE_DIR}/intelijet_v2_ws/src/ui/src/ui/tunnel_report/assets/images/tunnel.png"
+        if self.tunnel_view_image is not None:
+            tunnel_view_img = self.tunnel_view_image
+        else:
+            tunnel_view_img = processor.export_tunnel_view_image(out_path=None)
+        
+        shotcrete_volume = round(processor.volume(),3)
+        avg_thickness = round(processor.avg_thickness(),0)
+        
+
+        data = ReportData.from_inputs(
+            site_name=site_name,
+            job_name=job_name,
+            applied_thickness=applied_thickness,
+            tolerance=tolerance,
+            avg_thickness=avg_thickness,
+            shotcrete_volume=shotcrete_volume,
+            logo=LOGO_REPORT_FILE_PATH,
+            tunnel_view=tunnel_view_img,
+            thickness_chart=thickness_chart_img,
+            date=date,
+            time=time
+        )
+    
+        self.create_pdf(report_data=data.to_json(), output_path=output_path, debug_html=False)
+    
+

@@ -2,13 +2,19 @@
 import os
 import open3d as o3d
 import numpy as np
+from pathlib import Path
 
 class CloudService:
+
     @staticmethod
-    def load_cloud(file_name: str) -> o3d.t.geometry.PointCloud:
+    def load_cloud(file_name: "str | Path") -> o3d.t.geometry.PointCloud:
+        # Chuyển Path sang str nếu cần
+        if isinstance(file_name, Path):
+            file_name = str(file_name)
+
         # Kiểm tra file tồn tại
         if not file_name or not os.path.exists(file_name):
-            raise FileNotFoundError(f"File '{file_name}' not exist!")
+            raise FileNotFoundError(f"File '{file_name}' does not exist!")
 
         try:
             cloud = o3d.t.io.read_point_cloud(file_name, format="auto")

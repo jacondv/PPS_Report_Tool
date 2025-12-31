@@ -1,37 +1,85 @@
 import numpy as np
-from matplotlib.path import Path
 import open3d as o3d
-from scipy.spatial import Delaunay
+import uuid
+from typing import Optional
+from matplotlib.path import Path  # để kiểm tra point in polygon
 
 
 class CloudModel:
-    def __init__(self):
-        self._cloud = None
-        self.cloud_points = None      # Nx3 numpy array
-        self.polygon_points = []      # polygon overlay points
-        self.segmented_indices = []   # lưu index các điểm bên trong polygon
+    """
+    Quản lý dữ liệu point cloud và các công cụ hình học gắn với cloud
+    KHÔNG quản lý segment
+    """
 
-        self.segments = []  # list[CloudSegment]
+    def __init__(self, source_path=None, parent_id: Optional[str] = None):
+        self.id = f"cloud_{uuid.uuid4().hex[:8]}"
+        self.parent_id = parent_id         # cloud gốc
+        self.source_path = source_path
+        self._cloud: Optional[o3d.t.geometry.PointCloud] = None
+        self.points: Optional[np.ndarray] = None   # Nx3 numpy
+        self.name=None
+        self.loaded: bool = False
 
-
-    def _update(self,cloud):
-        self._cloud = cloud
-        # chuyển sang Nx3 numpy
-        self.cloud_points = self._cloud.point.positions.cpu().numpy()
-        self.clear_polygon()
+    # ==================================================
+    # Load / access
+    # ==================================================
 
     def set_cloud(self, cloud: o3d.t.geometry.PointCloud):
-        """Load point cloud Open3D Tensor -> numpy array."""
-        self._update(cloud)
-    
+        if cloud is None:
+            raise ValueError("Input cloud is None")
+        
+        # Kiểm tra xem cloud có điểm không
+        if len(cloud.point.positions) == 0:
+            raise ValueError("Input cloud contains no points")
+        
+        try:
+            self.points = cloud.point.positions.cpu().numpy()
+        except Exception as e:
+            raise RuntimeError(f"Failed to convert cloud points to numpy: {e}")
+        
+        self._cloud = cloud
+        self.loaded = True
+
     def get_cloud(self):
         return self._cloud
-       
-    def clear_polygon(self):
-        self.polygon_points = []
-        self.segmented_indices = []
 
-    def select_by_polygon(self, polygon_points, crop_direction=np.array([1, 0, 0])):
+    def is_loaded(self) -> bool:
+        return self.loaded
+
+
+    def create_segment(self, indices: list[int], name: Optional[str] = None) -> "CloudModel":
+        """
+        Tạo CloudModel mới từ subset points của self._cloud.
+        Giữ nguyên tất cả fields (_cloud, colors, normals, etc.).
+        """
+        if self._cloud is None:
+            raise ValueError("Cloud not loaded")
+
+        if not indices:
+            raise ValueError("Indices empty")
+
+        idx = np.asarray(indices, dtype=np.int64)
+        if idx.min() < 0 or idx.max() >= len(self._cloud.point.positions):
+            raise IndexError("Indices out of range")
+
+        # Tạo cloud con mới
+        seg_cloud = CloudModel(parent_id=self.id)
+        seg_cloud.id = f"{self.id}_seg_{uuid.uuid4().hex[:6]}"
+        seg_cloud.parent_id = self.id
+        seg_cloud.name = name or f"{self.id}_seg"
+
+        # Tạo Open3D PointCloud con
+        _sub_cloud = o3d.t.geometry.PointCloud(self._cloud.device)
+        for field in self._cloud.point:
+            _sub_cloud.point[field] = self._cloud.point[field][idx]
+
+        # Gán dữ liệu bằng set_cloud
+        seg_cloud.set_cloud(_sub_cloud)
+
+        return seg_cloud
+
+
+    def select_by_polygon(self, polygon_points, crop_direction=np.array([1, 0, 0]),base_indices=None):
         """
         Chọn các điểm nằm bên trong polygon (chiếu lên plane vuông góc với crop_direction)
         
@@ -39,13 +87,12 @@ class CloudModel:
         crop_direction: vector 3D xác định hướng cắt (mặc định [0,1,0])
         """
         self.polygon_points = np.array(polygon_points, dtype=float)
-
         if len(self.polygon_points) < 3:
             print(f"Cannot segment: polygon too few points ({len(self.polygon_points)} < 3)")
             return []
 
-        if self.cloud_points is None or len(self.cloud_points) == 0:
-            print("Cannot segment: cloud_points is None or empty")
+        if self.points is None or len(self.points) == 0:
+            print("Cannot segment: points is None or empty")
             return []
 
         # Chuẩn hóa vector hướng
@@ -71,7 +118,13 @@ class CloudModel:
 
         # Chiếu polygon và cloud lên plane (u,v)
         poly_proj = np.dot(self.polygon_points, np.vstack([u, v]).T)
-        cloud_proj = np.dot(self.cloud_points, np.vstack([u, v]).T)
+
+        if base_indices is not None:
+            affect_points = self.points[base_indices]
+        else:
+            affect_points = self.points
+            
+        cloud_proj = np.dot(affect_points, np.vstack([u, v]).T)
 
         # Tạo Path polygon 2D và mask
         path = Path(poly_proj)

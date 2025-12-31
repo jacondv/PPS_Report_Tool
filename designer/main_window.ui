@@ -39,13 +39,7 @@
        <property name="orientation">
         <enum>Qt::Vertical</enum>
        </property>
-       <widget class="QTreeWidget" name="treeJobData">
-        <column>
-         <property name="text">
-          <string notr="true">1</string>
-         </property>
-        </column>
-       </widget>
+       <widget class="QTreeWidget" name="treeJobData"/>
        <widget class="QListWidget" name="listJobProperty"/>
       </widget>
      </item>

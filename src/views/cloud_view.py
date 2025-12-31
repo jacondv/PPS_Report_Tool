@@ -2,6 +2,8 @@ from PySide6.QtWidgets import QVBoxLayout
 from pyvistaqt import QtInteractor
 import pyvista as pv
 import numpy as np
+import matplotlib.colors as mcolors
+
 
 class CloudView:
     def __init__(self, placeholder_widget):
@@ -11,15 +13,13 @@ class CloudView:
         self.placeholder_widget = placeholder_widget
         self._camera_locked = False
         # --- Polygon picking attributes ---
-        self.polygon_drawing = False
-        self.polygon_points = []
         self.polygon_actor = None
-        self.picking_enabled = False
-        self.picking_callback = None  # Controller gán callback
-
         self.on_right_click = None
 
+        self.is_drawing_polygon = False
+
         # tạo QtInteractor
+        self._cloud_actors: dict[str, pv.Actor] = {} # cloud_id -> actor
         self.plotter_widget = QtInteractor(placeholder_widget)
         self.plotter_widget.set_background('black')
 
@@ -49,6 +49,7 @@ class CloudView:
         self.plotter_widget.track_click_position(self._right_click, side='right')
 
 
+
     def get_current_front(self):
         pos_cam, lookat, up = self.plotter_widget.camera_position
         front = np.array(lookat) - np.array(pos_cam)
@@ -57,15 +58,29 @@ class CloudView:
             return front / norm
         return np.array([1, 0, 0])  # fallback
 
-    def display_cloud(self, points: np.ndarray, colors: np.ndarray = None, normals: np.ndarray = None):
-        self.plotter_widget.clear()
+
+    def clear_cloud(self, cloud_id=None):
+        if cloud_id:
+            actor = self._cloud_actors.pop(cloud_id, None)
+            if actor:
+                self.plotter_widget.remove_actor(actor)
+        else:
+            self.plotter_widget.clear()
+
+
+    def display_cloud(self, points: np.ndarray, colors=None, normals: np.ndarray = None, point_size: int = 2, cloud_id: str = None):
+
         point_cloud = pv.PolyData(points)
 
+        if isinstance(colors, str):
+            color = np.array(mcolors.to_rgb(colors), dtype=np.float32)
+            colors = np.tile(color, (points.shape[0], 1))*255
+            point_cloud["colors"] = colors.astype(np.uint8)
+        else:
+            if colors is not None:
+                adjusted_colors = colors.astype(np.float32)   
+
         kwargs = {}
-
-        if colors is not None:
-            adjusted_colors = colors.astype(np.float32)
-
         if normals is not None:
             # factor = normals[:,0]  # hoặc dot với camera direction
             normals = np.abs(normals)
@@ -76,72 +91,92 @@ class CloudView:
             point_cloud["colors"] = adjusted_colors.astype(np.uint8)
             kwargs = {"scalars": "colors", "rgb": True, "color": None}
         else:
-            kwargs = {"scalars": None, "rgb": False, "color": "white"}
+            kwargs = {"scalars": None, "rgb": True, "color": None}
 
-        self.plotter_widget.add_points(
+        actor = self.plotter_widget.add_points(
             point_cloud,
-            point_size=2,
+            point_size=point_size,
             render_points_as_spheres=False,
             **kwargs
         )
+        if cloud_id:
+            self._cloud_actors[cloud_id] = actor
 
+        self.plotter_widget.reset_camera()
+
+
+    def cleanup(self):
+        for actor in self._cloud_actors.values():
+            self.plotter_widget.remove_actor(actor)
+        self._cloud_actors.clear()
         self.plotter_widget.reset_camera()
 
     # --- Polygon overlay ---
     def start_polygon(self):
-        self.polygon_points = []
-        self.polygon_drawing = True
+        """Chỉ reset overlay, không lưu points"""
         if self.polygon_actor:
             self.plotter_widget.remove_actor(self.polygon_actor)
             self.polygon_actor = None
+        
+        self.is_drawing_polygon = True
 
-    def _left_click(self, pos,*args):
-    
-        if not self.polygon_drawing:
+
+    def _left_click(self, pos, *args):
+        """Thông báo Controller về click trái"""
+        if not self.is_drawing_polygon:
             return
-        # Lấy tọa độ 3D từ viewport click (chiếu vào XY plane)
-        # point = self.plotter_widget.pick_mouse_position(pos)
 
-        self.polygon_points.append(pos)
-        self._draw_polygon()
+        if self.on_left_click:
+            self.on_left_click(pos)  # Controller sẽ thêm point vào PolygonModel và gọi draw_polygon
+
 
     def _right_click(self, pos, *args):
-        if self.polygon_drawing:
-            if self.on_right_click:
-                self.on_right_click()  # thông báo Controller
+        """Thông báo Controller khi click phải (finish polygon)"""
+        if not self.is_drawing_polygon:
+            return
+        if self.on_right_click:
+            self.on_right_click()  # Controller quyết định finish polygon
 
-    def _draw_polygon(self):
-        # Xóa polygon/dot cũ nếu có
-        if self.polygon_actor:
+
+    def draw_polygon(self, points):
+        """Vẽ polygon (line + dot) bằng 1 mesh duy nhất."""
+        # Xóa actor cũ nếu có
+        if hasattr(self, 'polygon_actor') and self.polygon_actor:
             self.plotter_widget.remove_actor(self.polygon_actor)
+            self.polygon_actor = None
 
-        n = len(self.polygon_points)
+        n = len(points)
         if n == 0:
             return
 
-        # Vẽ line nếu ≥2 điểm
-        if n >= 2:
-            poly = pv.PolyData(self.polygon_points)
-            lines = [[2, i, i+1] for i in range(n-1)]
-            poly.lines = lines
-            self.polygon_actor = self.plotter_widget.add_mesh(
-                poly, color="blue", line_width=2
-            )
+        poly = pv.PolyData(points)
 
-        # Luôn vẽ điểm (dot) cho tất cả các điểm
-        points = pv.PolyData(self.polygon_points)
-        self.plotter_widget.add_mesh(
-            points, color="blue", point_size=6, render_points_as_spheres=True
+        # Lines
+        if n >= 2:
+            poly.lines = [[2, i, i+1] for i in range(n-1)]
+
+        # Vertices (để vẽ dot)
+        poly['dots'] = np.arange(n)  # dummy scalar để chắc chắn poly có points
+
+        # Add mesh một lần, line + points
+        self.polygon_actor = self.plotter_widget.add_mesh(
+            poly,
+            color='blue',
+            line_width=2,
+            point_size=6,
+            render_points_as_spheres=True
         )
 
 
     def finish_polygon(self):
-        if len(self.polygon_points) >= 3:
-            # Close polygon
-            self.polygon_points.append(self.polygon_points[0])
-            self._draw_polygon()
-        else:
-            self.polygon_points = []
-            
-        self.polygon_drawing = False
-        return self.polygon_points
+        """Chỉ dùng để render polygon đã đóng; không lưu dữ liệu"""
+        self.is_drawing_polygon = False
+
+
+    def capture_current_view(self):
+        # from PIL import Image
+        img = self.plotter_widget.screenshot(return_img=True)
+        # img_pil = Image.fromarray(img)
+        # img_pil.show()
+        return img
+        
