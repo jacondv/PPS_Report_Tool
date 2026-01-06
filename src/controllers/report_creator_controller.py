@@ -1,11 +1,14 @@
 # report_creator_controller.py
 from datetime import datetime
 from paths import DATA_DIR
+from pathlib import Path
+
 from PySide6.QtCore import QObject
-from PySide6.QtWidgets import QMessageBox
+from PySide6.QtWidgets import QMessageBox, QFileDialog
 
 from controllers.cloud_controller import CloudController
 from pps_shared.tunnel_report.report_controler import ReportGenerator
+from pps_shared.helper import assign_colors
 from utils.image_utils import image_array_to_base64_png
 
 
@@ -28,6 +31,8 @@ class ReportCreatorController(QObject):
         self.cloud_view = self.report_dialog.cloud_view
         self.cloud_controller = CloudController(self.cloud_view, self.cloud_service, self.job_service)
 
+        self.report_generator = ReportGenerator()
+
         # Active cloud IDs
         self.cloud_ids = []
         # Kết nối signal/slot từ dialog
@@ -41,12 +46,16 @@ class ReportCreatorController(QObject):
         if hasattr(ui, "btnExport"):
             ui.btnExport.clicked.connect(self.on_export_clicked)
 
+        if hasattr(ui, "btnUpdate"):
+            ui.btnUpdate.clicked.connect(self.on_update_clicked)
+
 
     def show(self,**kwargs):
         """Hiển thị dialog tạo report"""
         
         if 'cloud_ids' in kwargs:
             self.cloud_ids = kwargs['cloud_ids']
+            print("We have", self.cloud_ids)
 
             # Check if the cloud format is correct.
             try:
@@ -66,51 +75,80 @@ class ReportCreatorController(QObject):
                 return
                 
             self.report_dialog.show()
-            self.cloud_controller.cleanup()
-
-            self.display_cloud(self.cloud_ids)
+            # self.display_cloud(self.cloud_ids)
+            self.set_report_info()
+            self.upadte()
         else:
             self.cloud_ids = []
 
-        self.set_report_info()
         
-
+        
     def display_cloud(self, cloud_id: str | list[str]):
             print("Active cloud IDs for report:", cloud_id)
             """Hiển thị cloud đã chọn trong CloudView của dialog"""
-            if isinstance(cloud_id, list):
-                for cid in cloud_id:
-                    cloud_model = self.job_service.get_cloud_model(cid)
-                    if cloud_model:
-                        self.cloud_controller.render_cloud(cloud_model)
-            else:
-                cloud_model = self.job_service.get_cloud_model(cloud_id)
+
+            if not isinstance(cloud_id, list):
+                cloud_id = [cloud_id]
+
+            for cid in cloud_id:
+                cloud_model = self.job_service.get_cloud_model(cid)
                 if cloud_model:
+                    self.cloud_controller.cleanup()
                     self.cloud_controller.render_cloud(cloud_model)
 
 
     def crete_report(self):
         """Tạo report PDF từ các cloud đã chọn"""
-        report_generator = ReportGenerator()
-        report_generator.set_info(
-            site_name="JACON",
-            job_name="Sample Job",
-            date="2025-11-19",
-            time="08:40:22",
-            applied_thickness=50,
-            tolerance=10
+        if self.report_generator is None:
+            self.report_generator = ReportGenerator()
+
+        report_info = self.report_dialog.get_report_info()
+
+        self.report_generator.set_info(
+            site_name=report_info['site_name'],
+            job_name=report_info['job_name'],
+            date=report_info['date'],
+            time=report_info['time'],
+            applied_thickness=report_info['applied_thickness'],
+            tolerance=report_info['tolerance']
         )
 
         image = self.cloud_view.capture_current_view()
         image_base64 = image_array_to_base64_png(image)
-        report_generator.set_tunnel_view_image(image_base64)
+        self.report_generator.set_tunnel_view_image(image_base64)
 
         cloud_id = self.cloud_ids[0]
         cloud_model = self.job_service.get_cloud_model(cloud_id)
         cloud = cloud_model.get_cloud()
 
-        report_file_name = DATA_DIR / f"report_{cloud_id}.pdf"
-        report_generator.export(cloud, report_file_name)
+        # --- File Save Dialog ---
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog  # tuỳ chọn nếu cần
+
+        file_name = DATA_DIR / f"report_{cloud_id}.pdf"
+
+        report_file_name, _ = QFileDialog.getSaveFileName(
+            parent=None,                       
+            caption="Save Report to PDF",          
+            directory=str(file_name),    
+            filter="PDF Files (*.pdf);;All Files (*)",
+            options=options
+        )
+        #---if cancel is return None
+        if not report_file_name:
+            return
+
+        #---if missing file extension part
+        if not report_file_name.lower().endswith(".pdf"):
+            report_file_name += ".pdf"
+
+        
+        _low = int(report_info['applied_thickness']) - int(report_info['tolerance'])
+        _high = int(report_info['applied_thickness']) + int(report_info['tolerance'])
+        cloud = assign_colors(cloud,clip_max=150,highlight_range=(_low, _high))
+
+        self.report_generator.export(cloud, report_file_name)
+
 
     def set_report_info(self):
         """Tải thông tin job hiện tại từ JobService"""
@@ -139,11 +177,54 @@ class ReportCreatorController(QObject):
         )
 
 
+    def upadte(self):
+
+        report_info = self.report_dialog.get_report_info()
+
+        cloud_id = self.cloud_ids[0]
+        cloud_model = self.job_service.get_cloud_model(cloud_id)
+        cloud = cloud_model.get_cloud()
+
+        new_thickness = report_info['applied_thickness']
+        new_tolerance = report_info['tolerance']
+        _low = new_thickness - new_tolerance
+        _high = new_thickness + new_tolerance
+
+        cloud = assign_colors(cloud,highlight_range=(_low, _high))
+        data = self.report_generator.prepare_data(cloud)
+
+        cloud_model.set_cloud(cloud)
+
+        # self.report_generator = ReportGenerator()
+        self.report_generator.set_info(
+            site_name=report_info['site_name'],
+            job_name=report_info['job_name'],
+            date=report_info['date'],
+            time=report_info['time'],
+            applied_thickness=report_info['applied_thickness'],
+            tolerance=report_info['tolerance'],
+        )
+        shotcrete_volume = data.shotcrete_volume
+        avg_thickness = data.avg_thickness
+
+        # Update to texbox
+        self.report_dialog.set_average_thickness(avg_thickness)
+        self.report_dialog.set_shotcrete_volume(shotcrete_volume)     
+
+        self.display_cloud(cloud_id)
+
+
+
+
 
 # Handler for Export PDF button
     def on_export_clicked(self):
         self.crete_report()
 
+    def on_update_clicked(self):
+        self.upadte()
+
+        
 
 #Sample job_info.json content:
 

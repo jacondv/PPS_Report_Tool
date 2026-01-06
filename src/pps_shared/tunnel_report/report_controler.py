@@ -87,6 +87,54 @@ class ReportGenerator:
 
     def export(self,pcd,output_path=None):
 
+        # #initial data to test
+        # site_name= self.site_name
+        # job_name = self.job_name
+        # tolerance = self.tolerance
+        # applied_thickness = self.applied_thickness
+        # date =  self.date
+        # time = self.time
+        # bins = [applied_thickness-tolerance, applied_thickness+tolerance]
+
+        # processor = PLYProcessor()
+        # processor.load(pcd)
+        # processor.set_parameters(
+        #     target_thickness=applied_thickness,
+        #     tolerance=tolerance
+        # )
+
+        # #---------------------
+        # thickness_chart_img = processor.export_distribution_chart(bins=bins, save_path=None)
+        # # tunnel_view_img = f"{BASE_DIR}/intelijet_v2_ws/src/ui/src/ui/tunnel_report/assets/images/tunnel.png"
+        # if self.tunnel_view_image is not None:
+        #     tunnel_view_img = self.tunnel_view_image
+        # else:
+        #     tunnel_view_img = processor.export_tunnel_view_image(out_path=None)
+        
+        # shotcrete_volume = round(processor.volume(),3)
+        # avg_thickness = round(processor.avg_thickness(),0)
+        
+
+        # data = ReportData.from_inputs(
+        #     site_name=site_name,
+        #     job_name=job_name,
+        #     applied_thickness=applied_thickness,
+        #     tolerance=tolerance,
+        #     avg_thickness=avg_thickness,
+        #     shotcrete_volume=shotcrete_volume,
+        #     logo=LOGO_REPORT_FILE_PATH,
+        #     tunnel_view=tunnel_view_img,
+        #     thickness_chart=thickness_chart_img,
+        #     date=date,
+        #     time=time
+        # )
+
+        data = self.prepare_data(pcd)
+        self.create_pdf(report_data=data.to_json(), output_path=output_path, debug_html=False)
+
+    
+    def prepare_data(self, pcd):
+
         #initial data to test
         site_name= self.site_name
         job_name = self.job_name
@@ -128,7 +176,6 @@ class ReportGenerator:
             date=date,
             time=time
         )
-    
-        self.create_pdf(report_data=data.to_json(), output_path=output_path, debug_html=False)
+        return data
     
 

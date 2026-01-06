@@ -1,4 +1,5 @@
 # report_create_view.py
+import json
 from datetime import datetime
 from PySide6.QtWidgets import QDialog
 from PySide6.QtCore import QDate
@@ -75,7 +76,41 @@ class ReportCreateDialog(QDialog):
     #     # TODO: mở ProjectTree, chọn cloud, update preview
 
 
+    # ----- pull dữ liệu từ GUI -----
+    def get_report_info(self) -> str:
+        """
+        Lấy tất cả thông tin hiện tại từ GUI/dialog, trả về JSON
+        """
+        def _safe_float(txt):
+            try:
+                return float(txt)
+            except ValueError:
+                return 0.0
+
+        def _safe_int(txt):
+            try:
+                return int(txt)
+            except ValueError:
+                return 0
+
+        # Chuẩn hóa date và time sang string ISO
+        date_val = self.ui.dateEdit.date().toPyDate()
+        time_val = self.ui.timeEdit.time().toPyTime()
+
+        report_dict = {
+            "site_name": self.ui.txtSiteName.text(),
+            "job_name": self.ui.txtJobName.text(),
+            "date": date_val.strftime("%d-%b-%Y") if date_val else "",
+            "time": time_val.isoformat() if time_val else "",
+            "shotcrete_volume": _safe_float(self.ui.txtShotcreteVolume.text()),
+            "applied_thickness": _safe_int(self.ui.txtShotcreteApplied.text()),
+            "tolerance": _safe_int(self.ui.txtTolerance.text()),
+            "average_thickness": _safe_float(self.ui.txtAverageThickness.text())
+        }
+        return report_dict
+
     # Set parameters for use in report
+
 
     def set_report_info(self, site_name: str=None, job_name: str=None, date: datetime.date=None, time: datetime.time=None, 
                         shotcrete_volume: float=None, applied_thickness: int=None, tolerance: int=None, average_thickness: float=None):
@@ -115,6 +150,7 @@ class ReportCreateDialog(QDialog):
 
     def set_shotcrete_volume(self, volume: float):
         if volume is None:
+            self.ui.txtShotcreteVolume.setText("")
             return
         self.ui.txtShotcreteVolume.setText(f"{volume:.2f}")
 
@@ -130,6 +166,7 @@ class ReportCreateDialog(QDialog):
 
     def set_average_thickness(self, thickness: float):
         if thickness is None:
+            self.ui.txtAverageThickness.setText("")
             return
         self.ui.txtAverageThickness.setText(f"{thickness:.2f}")
 

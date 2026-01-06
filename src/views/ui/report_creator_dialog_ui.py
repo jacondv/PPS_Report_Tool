@@ -272,6 +272,19 @@ class Ui_ReportCreate(object):
 
         self.horizontalLayout_9.addWidget(self.widget_7)
 
+        self.widget_14 = QWidget(self.groupBox)
+        self.widget_14.setObjectName(u"widget_14")
+        self.verticalLayout_7 = QVBoxLayout(self.widget_14)
+        self.verticalLayout_7.setObjectName(u"verticalLayout_7")
+        self.btnUpdate = QPushButton(self.widget_14)
+        self.btnUpdate.setObjectName(u"btnUpdate")
+        self.btnUpdate.setMinimumSize(QSize(60, 30))
+
+        self.verticalLayout_7.addWidget(self.btnUpdate)
+
+
+        self.horizontalLayout_9.addWidget(self.widget_14)
+
         self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
         self.horizontalLayout_9.addItem(self.horizontalSpacer)
@@ -366,6 +379,7 @@ class Ui_ReportCreate(object):
         self.label_11.setText(QCoreApplication.translate("ReportCreate", u"(mm)", None))
         self.label_7.setText(QCoreApplication.translate("ReportCreate", u"Shotcrete Volume", None))
         self.label_12.setText(QCoreApplication.translate("ReportCreate", u"(mm)", None))
+        self.btnUpdate.setText(QCoreApplication.translate("ReportCreate", u"Apply", None))
         self.groupBox_2.setTitle(QCoreApplication.translate("ReportCreate", u"TUNNEL VIEW", None))
         self.groupBox_3.setTitle(QCoreApplication.translate("ReportCreate", u"SHOTCRETE THICKNESS DISTRIBUTION", None))
     # retranslateUi
