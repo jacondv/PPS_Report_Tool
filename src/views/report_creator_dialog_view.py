@@ -1,11 +1,17 @@
 # report_create_view.py
-import json
+import os
 from datetime import datetime
 from PySide6.QtWidgets import QDialog
 from PySide6.QtCore import QDate
 
 from views.ui.report_creator_dialog_ui import Ui_ReportCreate  # đường dẫn tới file UI của bạn
 from views.cloud_view import CloudView
+
+from utils.image_utils import image_to_pixmap
+
+
+
+
 
 class ReportCreateDialog(QDialog):
     """
@@ -19,6 +25,9 @@ class ReportCreateDialog(QDialog):
         # Tạo instance UI
         self.ui = Ui_ReportCreate()
         self.ui.setupUi(self)
+
+        self.ui.treeJobData.hide()
+        self.ui.btnOpen.hide()
 
         # ---------------- Views ----------------
 
@@ -60,21 +69,7 @@ class ReportCreateDialog(QDialog):
         # self.cloud_view.cleanup()
         self.hide()      # Chỉ hide dialog, không destroy widget
         
-    # ------------------ Slot xử lý ------------------
-    # def on_export_clicked(self):
-    #     """
-    #     Xử lý khi nhấn Export PDF
-    #     """
-    #     print("Export PDF clicked")
-    #     self.exportReport.emit()
-
-    # def on_select_cloud(self):
-    #     """
-    #     Xử lý khi nhấn chọn cloud
-    #     """
-    #     print("Select cloud clicked")
-    #     # TODO: mở ProjectTree, chọn cloud, update preview
-
+  
 
     # ----- pull dữ liệu từ GUI -----
     def get_report_info(self) -> str:
@@ -168,6 +163,17 @@ class ReportCreateDialog(QDialog):
         if thickness is None:
             self.ui.txtAverageThickness.setText("")
             return
-        self.ui.txtAverageThickness.setText(f"{thickness:.2f}")
+        self.ui.txtAverageThickness.setText(f"{thickness:.0f}")
 
     
+    def show_image(self, image):
+        """
+        image: numpy image (BGR or RGB) or file path
+        """
+        pixmap = image_to_pixmap(image)
+        if pixmap:
+            self.ui.chart_viewer.setPixmap(pixmap)
+            self.ui.chart_viewer.setScaledContents(True)
+
+
+

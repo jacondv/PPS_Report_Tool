@@ -49,6 +49,9 @@ class ReportCreatorController(QObject):
         if hasattr(ui, "btnUpdate"):
             ui.btnUpdate.clicked.connect(self.on_update_clicked)
 
+        if hasattr(ui, "txtShotcreteApplied"):
+            ui.txtShotcreteApplied.textChanged.connect(self.on_shotcrete_applied_changed)
+
 
     def show(self,**kwargs):
         """Hiển thị dialog tạo report"""
@@ -75,7 +78,6 @@ class ReportCreatorController(QObject):
                 return
                 
             self.report_dialog.show()
-            # self.display_cloud(self.cloud_ids)
             self.set_report_info()
             self.upadte()
         else:
@@ -191,7 +193,7 @@ class ReportCreatorController(QObject):
         _high = new_thickness + new_tolerance
 
         cloud = assign_colors(cloud,highlight_range=(_low, _high))
-        data = self.report_generator.prepare_data(cloud)
+        
 
         cloud_model.set_cloud(cloud)
 
@@ -204,27 +206,30 @@ class ReportCreatorController(QObject):
             applied_thickness=report_info['applied_thickness'],
             tolerance=report_info['tolerance'],
         )
+        data = self.report_generator.prepare_data(cloud)
         shotcrete_volume = data.shotcrete_volume
         avg_thickness = data.avg_thickness
+        thickness_chart = data.thickness_chart
 
         # Update to texbox
         self.report_dialog.set_average_thickness(avg_thickness)
         self.report_dialog.set_shotcrete_volume(shotcrete_volume)     
 
         self.display_cloud(cloud_id)
+        self.report_dialog.show_image(thickness_chart)
 
 
 
-
-
-# Handler for Export PDF button
+# Handler button event
     def on_export_clicked(self):
         self.crete_report()
 
     def on_update_clicked(self):
         self.upadte()
+        self.report_dialog.ui.btnExport.setEnabled(True)
 
-        
+    def on_shotcrete_applied_changed(self):
+        self.report_dialog.ui.btnExport.setEnabled(False)
 
 #Sample job_info.json content:
 
