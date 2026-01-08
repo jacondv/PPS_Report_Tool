@@ -25,7 +25,7 @@ class Ui_ReportCreate(object):
     def setupUi(self, ReportCreate):
         if not ReportCreate.objectName():
             ReportCreate.setObjectName(u"ReportCreate")
-        ReportCreate.resize(835, 896)
+        ReportCreate.resize(836, 878)
         ReportCreate.setStyleSheet(u"border: 1px solid rgb(170, 170, 170);\n"
 "")
         self.verticalLayout = QVBoxLayout(ReportCreate)
@@ -62,6 +62,13 @@ class Ui_ReportCreate(object):
         self.btnOpen.setMaximumSize(QSize(100, 16777215))
 
         self.horizontalLayout_10.addWidget(self.btnOpen)
+
+        self.btnAddText = QPushButton(self.widget_12)
+        self.btnAddText.setObjectName(u"btnAddText")
+        sizePolicy2.setHeightForWidth(self.btnAddText.sizePolicy().hasHeightForWidth())
+        self.btnAddText.setSizePolicy(sizePolicy2)
+
+        self.horizontalLayout_10.addWidget(self.btnAddText)
 
         self.horizontalSpacer_2 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
@@ -277,7 +284,6 @@ class Ui_ReportCreate(object):
         self.btnExport = QPushButton(self.widget_14)
         self.btnExport.setObjectName(u"btnExport")
         self.btnExport.setMinimumSize(QSize(80, 30))
-        self.btnExport.setMaximumSize(QSize(200, 16777215))
 
         self.horizontalLayout_13.addWidget(self.btnExport)
 
@@ -378,6 +384,7 @@ class Ui_ReportCreate(object):
     def retranslateUi(self, ReportCreate):
         ReportCreate.setWindowTitle(QCoreApplication.translate("ReportCreate", u"Dialog", None))
         self.btnOpen.setText(QCoreApplication.translate("ReportCreate", u"Open", None))
+        self.btnAddText.setText(QCoreApplication.translate("ReportCreate", u"Add Text", None))
         self.groupBox.setTitle(QCoreApplication.translate("ReportCreate", u"REPORT INFORMATION", None))
         self.label.setText(QCoreApplication.translate("ReportCreate", u"Site", None))
         self.label_2.setText(QCoreApplication.translate("ReportCreate", u"Job Name", None))

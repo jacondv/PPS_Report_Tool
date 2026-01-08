@@ -12,7 +12,6 @@ from utils.image_utils import image_to_pixmap
 
 
 
-
 class ReportCreateDialog(QDialog):
     """
     View cho chức năng tạo report.
@@ -55,6 +54,7 @@ class ReportCreateDialog(QDialog):
         # if hasattr(self.ui, "btnSelectCloud"):
         #     self.ui.btnSelectCloud.clicked.connect(self.on_select_cloud)
 
+
     def closeEvent(self, event):
         """
         Khi user đóng dialog:
@@ -65,12 +65,11 @@ class ReportCreateDialog(QDialog):
         event.ignore()   # Bỏ qua close event mặc định
         self.hide()      # Chỉ hide dialog, không destroy widget
 
+
     def reject(self):
         # self.cloud_view.cleanup()
         self.hide()      # Chỉ hide dialog, không destroy widget
-        
-  
-
+         
     # ----- pull dữ liệu từ GUI -----
     def get_report_info(self) -> str:
         """
@@ -105,8 +104,6 @@ class ReportCreateDialog(QDialog):
         return report_dict
 
     # Set parameters for use in report
-
-
     def set_report_info(self, site_name: str=None, job_name: str=None, date: datetime.date=None, time: datetime.time=None, 
                         shotcrete_volume: float=None, applied_thickness: int=None, tolerance: int=None, average_thickness: float=None):
         """
@@ -128,20 +125,24 @@ class ReportCreateDialog(QDialog):
             site_name = ""
         self.ui.txtSiteName.setText(site_name)
 
+
     def set_job_name(self, job_name: str):
         if job_name is None:
             job_name = ""
         self.ui.txtJobName.setText(job_name)
+
 
     def set_date(self, date: datetime.date):
         if date is None:
             return
         self.ui.dateEdit.setDate(QDate(date.year, date.month, date.day))
 
+
     def set_time(self, time: datetime.time):
         if time is None:
             return
         self.ui.timeEdit.setTime(time)
+
 
     def set_shotcrete_volume(self, volume: float):
         if volume is None:
@@ -149,15 +150,18 @@ class ReportCreateDialog(QDialog):
             return
         self.ui.txtShotcreteVolume.setText(f"{volume:.2f}")
 
+
     def set_shotcrete_applied(self, applied_thickness: int):
         if applied_thickness is None:
             return
         self.ui.txtShotcreteApplied.setText(f"{applied_thickness}")
 
+
     def set_tolerance(self, tolerance: int):
         if tolerance is None:
             return
         self.ui.txtTolerance.setText(f"{tolerance}")
+
 
     def set_average_thickness(self, thickness: float):
         if thickness is None:
@@ -174,6 +178,3 @@ class ReportCreateDialog(QDialog):
         if pixmap:
             self.ui.chart_viewer.setPixmap(pixmap)
             self.ui.chart_viewer.setScaledContents(True)
-
-
-

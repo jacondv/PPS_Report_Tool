@@ -75,6 +75,7 @@ class MainController:
         if not folder:
             return
 
+        self.cloud_controller.cleanup()
         self.job_controller.open_job(folder)
 
     # ---------------- Report workflow ----------------

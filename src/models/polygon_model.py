@@ -87,3 +87,8 @@ class PolygonModel:
 
     def get_points(self) -> np.ndarray:
         return self.points
+
+    def num_points(self)->int:
+        if self.points is None:
+            return 0
+        return self.points.shape[0]

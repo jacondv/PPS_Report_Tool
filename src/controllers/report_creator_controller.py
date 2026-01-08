@@ -4,10 +4,16 @@ from paths import DATA_DIR
 from pathlib import Path
 
 from PySide6.QtCore import QObject
-from PySide6.QtWidgets import QMessageBox, QFileDialog
+from PySide6.QtWidgets import QMessageBox, QFileDialog, QDialog
 
 from controllers.cloud_controller import CloudController
+from controllers.annotation_controller import AnnotationController
+
+from models.annotation_model import AnnotationModel
+from views.ui.annotation_input_dialog_ui import AnnotationInputDialog
+
 from pps_shared.tunnel_report.report_controler import ReportGenerator
+
 from pps_shared.helper import assign_colors
 from utils.image_utils import image_array_to_base64_png
 
@@ -31,12 +37,19 @@ class ReportCreatorController(QObject):
         self.cloud_view = self.report_dialog.cloud_view
         self.cloud_controller = CloudController(self.cloud_view, self.cloud_service, self.job_service)
 
+        self.annotation_mode = AnnotationModel()
+        self.annotation_controller = AnnotationController(self.cloud_view, self.annotation_mode)
+
         self.report_generator = ReportGenerator()
 
         # Active cloud IDs
         self.cloud_ids = []
         # Kết nối signal/slot từ dialog
         self._connect_signals()
+        
+
+        # Show maximize size
+
 
     def _connect_signals(self):
 
@@ -52,13 +65,18 @@ class ReportCreatorController(QObject):
         if hasattr(ui, "txtShotcreteApplied"):
             ui.txtShotcreteApplied.textChanged.connect(self.on_shotcrete_applied_changed)
 
+        if hasattr(ui, "btnAddText"):
+           ui.btnAddText.clicked.connect(self.on_add_annotation)
+           
+
+        
+        
 
     def show(self,**kwargs):
         """Hiển thị dialog tạo report"""
         
         if 'cloud_ids' in kwargs:
             self.cloud_ids = kwargs['cloud_ids']
-            print("We have", self.cloud_ids)
 
             # Check if the cloud format is correct.
             try:
@@ -98,6 +116,7 @@ class ReportCreatorController(QObject):
                     self.cloud_controller.cleanup()
                     self.cloud_controller.render_cloud(cloud_model)
 
+            
 
     def crete_report(self):
         """Tạo report PDF từ các cloud đã chọn"""
@@ -230,6 +249,10 @@ class ReportCreatorController(QObject):
 
     def on_shotcrete_applied_changed(self):
         self.report_dialog.ui.btnExport.setEnabled(False)
+
+    def on_add_annotation(self):
+        self.annotation_controller.request_add_annotation()
+
 
 #Sample job_info.json content:
 

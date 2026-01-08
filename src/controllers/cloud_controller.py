@@ -32,7 +32,8 @@ class CloudController(QObject):
 
 
         # Connect View callbacks
-        self.cloud_view.on_left_click = self.add_polygon_point
+        # self.cloud_view.on_left_click = self.add_polygon_point
+        self.cloud_view.on_left_click = self.on_left_click
         self.cloud_view.on_right_click = self.finish_draw_polygon
 
         # subscribe trực tiếp vào EventBus
@@ -52,6 +53,17 @@ class CloudController(QObject):
             self.set_cloud_model(cloud_model)
             self.render_cloud(cloud_model)
 
+    def on_left_click(self, pos, mode):
+        """
+        Xử lý sự kiện click trái từ CloudView
+        :param pos: (x, y) trong hệ tọa độ view
+        :param mode: ViewMode hiện tại
+        """
+
+        if mode == 1:
+            self.add_polygon_point(pos)
+            return
+        
 
     # ==================================================
     # Cloud loading / rendering
@@ -112,7 +124,7 @@ class CloudController(QObject):
 
         # Bắt đầu vẽ trong View
         self.cloud_view.start_polygon()
-        self.polygon_model.crop_direction = self.cloud_view.get_current_front()
+        # self.polygon_model.crop_direction = self.cloud_view.get_current_front()
         self._segment_indices = []
 
 
@@ -120,6 +132,9 @@ class CloudController(QObject):
         """Thêm điểm polygon từ click"""
         if not self.polygon_model:
             return
+        
+        if self.polygon_model.num_points() == 0: # Is the firt point to adding
+            self.polygon_model.crop_direction = self.cloud_view.get_current_front()
 
         self.polygon_model.add_point(pos)
         self.cloud_view.draw_polygon(self.polygon_model.get_points())
@@ -152,7 +167,7 @@ class CloudController(QObject):
         """Hiển thị các điểm segment trên View"""
         if self._segment_indices is not None and len(self._segment_indices) > 0:
             points = self.cloud_model.points[self._segment_indices]
-            self.cloud_view.display_cloud(points=points, colors="pink", point_size=3, cloud_id="segment_preview")
+            self.cloud_view.display_cloud(points=points, colors="pink", point_size=3, cloud_id="segment_preview", reset_camera=False)
             self.segment_toolbar.enable(names=["clear", "close","exportselection"])
 
     def export_segment(self):
@@ -176,7 +191,8 @@ class CloudController(QObject):
         self.cloud_view.clear_cloud("segment_preview")
         self.cloud_view.draw_polygon([])  # Xoá polygon
         # self.polygon_model = None
-        self.segment_toolbar.disable()
+        # self.segment_toolbar.disable()
+        self.start_segment()
 
     def cleanup(self):
         self.cloud_model = None
