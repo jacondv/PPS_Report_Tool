@@ -45,17 +45,15 @@ class AnnotationInputDialog(QDialog):
             self._drag_pos = event.globalPos() - self.frameGeometry().topLeft()
             event.accept()
 
+
     def mouseMoveEvent(self, event):
         if self._drag_pos and event.buttons() == Qt.LeftButton:
             self.move(event.globalPos() - self._drag_pos)
             event.accept()
 
+
     def mouseReleaseEvent(self, event):
         self._drag_pos = None
-
-    def on_delete(self):
-        self.btnDeleteClicked.emit()
-        self.reject()
 
     # Enter = OK, Esc = Cancel
     def keyPressEvent(self, event):
@@ -66,7 +64,12 @@ class AnnotationInputDialog(QDialog):
         else:
             super().keyPressEvent(event)
 
-            
+
+    def on_delete(self):
+        self.btnDeleteClicked.emit()
+        self.reject()
+
+
     def text(self):
         return self.edit.text().strip()
 

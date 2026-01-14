@@ -1,10 +1,14 @@
 from PySide6.QtWidgets import QVBoxLayout, QWidget
-from PySide6.QtCore import Signal
+from PySide6.QtCore import Signal, Qt, QEvent
+
 from pyvistaqt import QtInteractor
 import pyvista as pv
 import numpy as np
 import matplotlib.colors as mcolors
 from PySide6.QtCore import QTimer
+import vtk
+
+from views.components.overlay_factory import OverlayFactory
 
 VIEW_MODE = 0
 SEGMENT_MODE = 1
@@ -12,8 +16,16 @@ ANNOTATION_MODE = 2
 
 class CloudView(QWidget):
 
-    leftClicked = Signal(object, int)
-    leftDoubleClick = Signal(object,int)
+    leftClicked = Signal(object)
+    leftPressed = Signal(object)
+    leftReleased = Signal(object)
+    leftDoubleClick = Signal(object)
+
+    leftClicked3D = Signal(object)
+    rightClicked3D = Signal(object)
+
+    mouseMoved = Signal(object)
+    mouseDragged =  Signal(object)
 
     def __init__(self, placeholder_widget):
         """
@@ -21,6 +33,7 @@ class CloudView(QWidget):
         """
         super().__init__(placeholder_widget)
         self.placeholder_widget = placeholder_widget
+        
         self._camera_locked = False
 
         # Working mode
@@ -44,6 +57,18 @@ class CloudView(QWidget):
         self.plotter_widget = QtInteractor(placeholder_widget)
         self.plotter_widget.set_background('black')
 
+
+        # 2. THIẾT LẬP LAYER OVERLAY
+        # Cho phép render window hỗ trợ nhiều layer
+        self.plotter_widget.render_window.SetNumberOfLayers(2)
+
+        # Tạo Renderer cho lớp 2D
+        self.overlay_renderer = vtk.vtkRenderer()
+        self.overlay_renderer.SetLayer(1)           # Nằm trên Layer 0
+        self.overlay_renderer.InteractiveOff()      # Không chặn chuột của lớp 3D bên dưới
+
+        self.plotter_widget.render_window.AddRenderer(self.overlay_renderer)
+
         self.plotter_widget.add_axes(
             interactive=None,
             line_width=2,
@@ -55,6 +80,8 @@ class CloudView(QWidget):
         #--- Annotation metadata ---
         self._annotations: list[dict] = []  
         self._annotation_actors = {}
+        self._text_actors = {}
+        self._shape_actors = {}
 
 
         # Đặt camera nhìn từ +X về gốc
@@ -74,18 +101,106 @@ class CloudView(QWidget):
         iren = self.plotter_widget.iren
         iren.add_observer("LeftButtonPressEvent", lambda o,e: self._on_left_press(iren, e))
         
-        # iren.add_observer("MouseMoveEvent", lambda o,e: self._on_mouse_move(iren, e))
+        # iren.add_observer("MouseMoveEvent", self._on_mouse_move)
         iren.add_observer("LeftButtonReleaseEvent", lambda o,e: self._on_left_release(iren, e))
         self.plotter_widget.track_click_position(self._on_left_double_click, side='left', double=True)
+        self.plotter_widget.track_mouse_position()
 
         # Right click vẫn dùng track_click_position
         self.plotter_widget.track_click_position(self._right_click, side='right')
+        self.plotter_widget.installEventFilter(self)
+
+
+    def eventFilter(self, obj, event):
+
+        if obj == self.plotter_widget:
+            if event.type() == QEvent.MouseButtonPress:
+                if event.button() == Qt.LeftButton:
+                    pass
+
+            elif event.type() == QEvent.MouseButtonRelease:
+                if event.button() == Qt.LeftButton:
+                    x = event.pos().x()
+                    _height = self.placeholder_widget.height()
+                    y = _height - event.pos().y()
+                    self.leftReleased.emit((x, y))
+            elif event.type() == QEvent.MouseMove:
+                x = event.pos().x()
+                _height = self.placeholder_widget.height()
+                y = _height - event.pos().y()
+                self.mouseMoved.emit((x, y))
+                
+                # --- CHECK LEFT BUTTON IS PRESSED → DRAG ---
+                if event.buttons() & Qt.LeftButton:
+                    self.mouseDragged.emit((x, y))
+
+
+        return super().eventFilter(obj, event)
+
+
+    def hostWidget(self) -> QWidget:
+        """
+        Widget container / placeholder chứa CloudView
+        """
+        return self.placeholder_widget
+
+
+    # =========================
+    # Left click / drag / double click handlers
+    # =========================
+    def _on_left_press(self, interactor, event):
+        self._start_pos = interactor.get_event_position()
+        self.leftPressed.emit(self._start_pos)
+
+
+    def _on_left_release(self, interactor, event):
+        
+        current_pos = interactor.get_event_position()
+        dx = current_pos[0] - self._start_pos[0]
+        dy = current_pos[1] - self._start_pos[1]
+        if (dx*dx + dy*dy)**0.5 > self._drag_threshold:
+            self._dragged = True
+        else:
+            self._dragged = False
+        
+        if not self._dragged:
+            picked_3d = self.plotter_widget.pick_mouse_position()
+            if picked_3d is not None:
+                self._left_click(picked_3d)
+     
+    # Sư kiện left click được xử lý để loại bỏ double click
+    def _left_click(self, pos):
+        """Thông báo Controller về click trái"""
+
+        #Emit su kien leftclick
+        x2d, y2d = self.plotter_widget.iren.get_event_position()
+        self.leftClicked.emit((x2d, y2d))
+        self.leftClicked3D.emit(pos)
+
+        # if self.is_drawing_polygon:
+        # if self.on_left_click:
+        #     self.on_left_click(pos)
+        
+
+    def _on_left_double_click(self, pos, *args):
+        x2d, y2d = self.plotter_widget.iren.get_event_position()
+        QTimer.singleShot(100, lambda: self.leftDoubleClick.emit((x2d, y2d)))
+        
+        
+    def _right_click(self, pos, *args):
+        """Thông báo Controller khi click phải (finish polygon)"""
+
+        self.rightClicked3D.emit(pos)
+
+        if not self.is_drawing_polygon:
+            return
+        if self.on_right_click:
+            self.on_right_click()
 
 
     # =========================
     # Camera
     # =========================
-
     def get_current_front(self):
         pos_cam, lookat, up = self.plotter_widget.camera_position
         front = np.array(lookat) - np.array(pos_cam)
@@ -97,6 +212,31 @@ class CloudView(QWidget):
 
     def reset_camera(self):
         self.plotter_widget.reset_camera()
+  
+  
+    def capture_current_view(self):
+        return self.plotter_widget.screenshot(return_img=True)
+
+
+    def enable(self, value=True):
+        """
+        Bật/Tắt camera interaction trên self.plotter_widget
+        value=True -> bật camera (xoay/pan/zoom)
+        value=False -> khóa camera, vẫn cho phép vẽ overlay 2D
+        """
+        # Lưu style gốc lần đầu
+        if not hasattr(self.plotter_widget, "_camera_enabled_style"):
+            self.plotter_widget._camera_enabled_style = self.plotter_widget.interactor.GetInteractorStyle()
+            self.plotter_widget._camera_disabled_style = vtk.vtkInteractorStyleUser()
+
+        if value:
+            # Bật camera
+            self.plotter_widget.interactor.SetInteractorStyle(self.plotter_widget._camera_enabled_style)
+        else:
+            # Khóa camera
+            self.plotter_widget.interactor.SetInteractorStyle(self.plotter_widget._camera_disabled_style)
+
+
     # =========================
     # Cloud management
     # =========================
@@ -156,24 +296,7 @@ class CloudView(QWidget):
     # =========================
     # Anotation
     # =========================
-
-    # ---------------- Annotation HUD ----------------
-    def render_annotation(self, ann: 'Annotation'):
-        """Vẽ hoặc cập nhật annotation"""
-        if not ann:
-            return
-        actor = self._annotation_actors.get(ann.id)
-        if actor:
-            self.plotter_widget.remove_actor(actor)
-        actor = self.plotter_widget.add_text(
-            ann.msg,
-            position=(ann.x, ann.y),
-            font_size=ann.font_size,
-            color=ann.color,
-            shadow=False,
-            viewport=False,
-        )
-        self._annotation_actors[ann.id] = actor
+    # ---------------- Annotation Text  ----------------
 
 
     def remove_annotation(self, ann_id: str):
@@ -184,6 +307,111 @@ class CloudView(QWidget):
 
     def set_annotation_visible(self, ann_id:str, visible=True):
         actor = self._annotation_actors.get(ann_id)
+        if actor:
+            actor.SetVisibility(visible)
+            self.plotter_widget.render()
+            
+
+    # ---------------- Annotation Shape----------------
+    def draw_text(
+        self,
+        name: str,
+        pos: tuple[int, int],
+        text: str,
+        color: str = "red",
+        **kwargs
+    ):
+        """
+        Vẽ hoặc cập nhật text 2D trên QtInteractor.
+        pos: (x, y) pixel viewport
+        """
+
+        # kiểm tra xem text actor đã tồn tại chưa
+        actor = self._text_actors.get(name)
+        font_size = kwargs.get('font_size', 11)
+
+        if actor:
+            # update text và vị trí
+            actor.SetInput(text)
+            actor.SetDisplayPosition(int(pos[0]), int(pos[1]))
+            actor.GetTextProperty().SetFontSize(font_size)
+            actor.GetTextProperty().SetColor(self._color_to_rgb(color))
+        else:
+            # tạo actor mới
+            actor = vtk.vtkTextActor()
+            actor.SetInput(text)
+            actor.SetDisplayPosition(int(pos[0]), int(pos[1]))
+            actor.GetTextProperty().SetFontSize(font_size)
+            actor.GetTextProperty().SetColor(self._color_to_rgb(color))
+            actor.GetTextProperty().SetShadow(False)
+
+            # thêm vào viewport
+            self.overlay_renderer.AddActor(actor)
+            self._text_actors[name] = actor
+
+        self.plotter_widget.render()
+
+
+    def _color_to_rgb(self, color_name: str):
+        """Chuyển tên màu sang RGB tuple"""
+        colors = {
+            "red": (1.0, 0.0, 0.0),
+            "yellow": (1.0, 1.0, 0.0),
+            "green": (0.0, 1.0, 0.0),
+            "blue": (0.0, 0.0, 1.0),
+            "white": (1.0, 1.0, 1.0),
+        }
+        return colors.get(color_name.lower(), (1.0, 1.0, 1.0))
+
+
+    def draw_line(self, name, points_2d, **kwargs):
+        """Controller sẽ gọi hàm này để yêu cầu View vẽ lại"""
+        if name in self._shape_actors:
+            self.overlay_renderer.RemoveActor(self._shape_actors[name])
+        
+        # Gọi Factory để lấy Actor mới
+
+        actor = OverlayFactory.create_polyline(points_2d,**kwargs)
+        
+        self.overlay_renderer.AddActor(actor)
+        self.plotter_widget.render()
+        self._shape_actors[name] = actor
+
+
+    def render_shape(self, shape: 'Shape2D', draw_box: bool = False):
+        """
+        Render một shape Arrow2D / Line2D trên QtInteractor (plotter_widget)
+        mà không cần import trực tiếp class Arrow2D / Line2D.
+        """
+     
+        if not shape:
+            return
+            
+        # Nếu shape có thuộc tính text → render text
+        if getattr(shape, "type", "") == "text":
+            pos = shape.offset  # top-left của text
+            color = shape.color if hasattr(shape, "color") else "yellow"
+            self.draw_text(shape.id, pos, shape.text, color=color, 
+                           font_size=getattr(shape, "font_size", 11))
+
+        elif getattr(shape, "type", "") == "line":
+            # mặc định vẽ line
+            self.draw_line(shape.id, shape.world_points(),
+                        color=getattr(shape, "color", "yellow"),
+                        line_width=getattr(shape, "line_width", 1))
+            
+            
+    def remove_shape(self, shape_id: str):
+
+        if shape_id in self._shape_actors:
+            self.overlay_renderer.RemoveActor(self._shape_actors[shape_id])
+        
+        if shape_id in self._text_actors:
+            self.overlay_renderer.RemoveActor(self._text_actors[shape_id])
+
+
+    def set_shape_actor_visible(self, shape_id:str, visible=True):
+        actor = self._shape_actors.get(shape_id)
         if actor:
             actor.SetVisibility(visible)
             self.plotter_widget.render()
@@ -199,54 +427,6 @@ class CloudView(QWidget):
         
         self.is_drawing_polygon = True
         self.mode = self.is_drawing_polygon
-
-    # =========================
-    # Left click / drag / double click handlers
-    # =========================
-    def _on_left_press(self, interactor, event):
-        self._start_pos = interactor.get_event_position()
-
-
-    def _on_left_release(self, interactor, event):
-        
-        current_pos = interactor.get_event_position()
-        dx = current_pos[0] - self._start_pos[0]
-        dy = current_pos[1] - self._start_pos[1]
-        if (dx*dx + dy*dy)**0.5 > self._drag_threshold:
-            self._dragged = True
-        else:
-            self._dragged = False
-        
-        if not self._dragged:
-            picked_3d = self.plotter_widget.pick_mouse_position()
-            if picked_3d is not None:
-                self._left_click(picked_3d)
-     
-
-    def _left_click(self, pos):
-        """Thông báo Controller về click trái"""
-
-        #Emit su kien leftclick
-        x2d, y2d = self.plotter_widget.iren.get_event_position()
-        self.leftClicked.emit((x2d, y2d), self.mode)
-
-        # if self.is_drawing_polygon:
-        if self.on_left_click:
-            self.on_left_click(pos, self.mode)
-        
-
-    def _on_left_double_click(self, pos, *args):
-        x2d, y2d = self.plotter_widget.iren.get_event_position()
-        QTimer.singleShot(100, lambda: self.leftDoubleClick.emit((x2d, y2d), self.mode))
-        
-        
-
-    def _right_click(self, pos, *args):
-        """Thông báo Controller khi click phải (finish polygon)"""
-        if not self.is_drawing_polygon:
-            return
-        if self.on_right_click:
-            self.on_right_click()
 
 
     def draw_polygon(self, points):
@@ -276,11 +456,9 @@ class CloudView(QWidget):
         # Finish chuyển sang view mode, reset self.is_drawing_polygon
         self.is_drawing_polygon = False
         self.mode = self.is_drawing_polygon
-    # =========================
-    # Capture view
-    # =========================
-    def capture_current_view(self):
-        return self.plotter_widget.screenshot(return_img=True)
+
+
+
 
 
 

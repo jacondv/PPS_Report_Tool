@@ -8,6 +8,8 @@ def main():
     app = QApplication(sys.argv)
 
     main_window = MainWindow()
+    style = main_window.styleSheet()
+    app.setStyleSheet(style)
 
     main_controller = MainController(main_window)
 

@@ -9,8 +9,7 @@ from PySide6.QtWidgets import QMessageBox, QFileDialog, QDialog
 from controllers.cloud_controller import CloudController
 from controllers.annotation_controller import AnnotationController
 
-from models.annotation_model import AnnotationModel
-from views.ui.annotation_input_dialog_ui import AnnotationInputDialog
+from models.shape_model import Shape2DModel
 
 from pps_shared.tunnel_report.report_controler import ReportGenerator
 
@@ -37,8 +36,8 @@ class ReportCreatorController(QObject):
         self.cloud_view = self.report_dialog.cloud_view
         self.cloud_controller = CloudController(self.cloud_view, self.cloud_service, self.job_service)
 
-        self.annotation_mode = AnnotationModel()
-        self.annotation_controller = AnnotationController(self.cloud_view, self.annotation_mode)
+        self.shape_model = Shape2DModel()
+        self.annotation_controller = AnnotationController(self.cloud_view, self.shape_model)
 
         self.report_generator = ReportGenerator()
 
@@ -67,9 +66,14 @@ class ReportCreatorController(QObject):
 
         if hasattr(ui, "btnAddText"):
            ui.btnAddText.clicked.connect(self.on_add_annotation)
-           
 
+        if hasattr(ui, 'btnAnnotationTool'):
+            ui.btnAnnotationTool.clicked.connect(self.on_annotation_toolbar)
         
+        if hasattr(ui, 'btnShapeTool'):
+            ui.btnShapeTool.clicked.connect(self.on_shape_toolbar)
+           
+      
         
 
     def show(self,**kwargs):
@@ -251,7 +255,16 @@ class ReportCreatorController(QObject):
         self.report_dialog.ui.btnExport.setEnabled(False)
 
     def on_add_annotation(self):
-        self.annotation_controller.request_add_annotation()
+        
+        self.shape_controller.request_add_shape()
+        # self.annotation_controller.request_add_annotation()
+
+
+    def on_annotation_toolbar(self):
+        self.annotation_controller.show_annotation_toolbar()
+
+    def on_shape_toolbar(self):
+        self.shape_controller.show_shape_toolbar()
 
 
 #Sample job_info.json content:

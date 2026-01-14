@@ -4,8 +4,9 @@ from event_bus import event_bus
 from PySide6.QtCore import QObject, Signal
 from views.segment_toolbar_view import SegmentToolbarView
 from models.polygon_model import PolygonModel
+from controllers.base_controller import BaseController
 
-class CloudController(QObject):
+class CloudController(QObject, BaseController):
 
     # segmentCreated = Signal(object)
 
@@ -33,7 +34,8 @@ class CloudController(QObject):
 
         # Connect View callbacks
         # self.cloud_view.on_left_click = self.add_polygon_point
-        self.cloud_view.on_left_click = self.on_left_click
+        # self.cloud_view.on_left_click = self.on_left_click
+        self.cloud_view.leftClicked3D.connect(self.on_left_click)
         self.cloud_view.on_right_click = self.finish_draw_polygon
 
         # subscribe trực tiếp vào EventBus
@@ -53,17 +55,13 @@ class CloudController(QObject):
             self.set_cloud_model(cloud_model)
             self.render_cloud(cloud_model)
 
-    def on_left_click(self, pos, mode):
+    def on_left_click(self, pos):
         """
         Xử lý sự kiện click trái từ CloudView
-        :param pos: (x, y) trong hệ tọa độ view
+        :param pos: (x, y, z) trong hệ tọa độ view
         :param mode: ViewMode hiện tại
         """
-
-        if mode == 1:
-            self.add_polygon_point(pos)
-            return
-        
+        self.add_polygon_point(pos)
 
     # ==================================================
     # Cloud loading / rendering

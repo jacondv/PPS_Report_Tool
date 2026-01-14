@@ -32,6 +32,7 @@ class ReportCreateDialog(QDialog):
 
         self.cloud_view = CloudView(self.ui.cloud_viewer)
 
+
         # Tùy chỉnh thêm nếu cần
         self.setWindowTitle("Create Report")
         self.setModal(True)  # dialog modal
