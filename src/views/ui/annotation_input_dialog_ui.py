@@ -131,12 +131,15 @@ class AnnotationInputDialog(QDialog):
         Move TOP-LEFT of dialog to (x, y) in parent widget coordinate system.
         """
         parent = self.parentWidget()
+        pr = parent.rect()
 
         #  Invert Y (Qt -> bottom-left)
-        y = parent.height() - y
+        qt_y = pr.bottom() - y
+        # y = parent.height() - y
 
         if parent is None:
             raise RuntimeError("Dialog has no parent")
 
-        global_pos = parent.mapToGlobal(QPoint(int(x), int(y)))
+        global_pos = parent.mapToGlobal(QPoint(int(x), int(qt_y)))
+
         self.move(global_pos)

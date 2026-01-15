@@ -31,7 +31,10 @@ class ToolDrawText(Tool):
             self.view.remove_shape(self._shape.id)
         self._shape = None
 
-    def on_mouse_press(self, pos: Tuple[int, int], button: str):
+    def on_left_pressed(self, pos: Tuple[int, int], button: str):
+        pass
+
+    def on_mouse_release(self, pos: Tuple[int, int], button: str):
         if button != "left":
             return
 

@@ -52,6 +52,7 @@ class ToolEditText(Tool):
 
         # tìm text gần click
         self._shape = self.model.find_nearest(pos)
+        
         if not self._shape:
             self.toolCompleted.emit(None)
             return

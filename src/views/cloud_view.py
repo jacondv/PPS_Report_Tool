@@ -121,23 +121,35 @@ class CloudView(QWidget):
         if obj == self.plotter_widget:
             if event.type() == QEvent.MouseButtonPress:
                 if event.button() == Qt.LeftButton:
-                    pass
+                    # x = event.pos().x()
+                    # _height = self.placeholder_widget.height()
+                    # y = _height - event.pos().y()
+
+                    # self.leftPressed.emit((x, y))
+                    x2d, y2d = self.plotter_widget.iren.get_event_position()
+                    self.leftPressed.emit((x2d, y2d))
+
 
             elif event.type() == QEvent.MouseButtonRelease:
                 if event.button() == Qt.LeftButton:
-                    x = event.pos().x()
-                    _height = self.placeholder_widget.height()
-                    y = _height - event.pos().y()
-                    self.leftReleased.emit((x, y))
+                    # x = event.pos().x()
+                    # _height = self.placeholder_widget.height()
+                    # y = _height - event.pos().y()
+                    # self.leftReleased.emit((x, y))
+                    x2d, y2d = self.plotter_widget.iren.get_event_position()
+                    self.leftReleased.emit((x2d, y2d))
+
             elif event.type() == QEvent.MouseMove:
-                x = event.pos().x()
-                _height = self.placeholder_widget.height()
-                y = _height - event.pos().y()
-                self.mouseMoved.emit((x, y))
+                # x = event.pos().x()
+                # _height = self.placeholder_widget.height()
+                # y = _height - event.pos().y()
+                # self.mouseMoved.emit((x, y))
+                x2d, y2d = self.plotter_widget.iren.get_event_position()
+                self.mouseMoved.emit((x2d, y2d))
                 
                 # --- CHECK LEFT BUTTON IS PRESSED → DRAG ---
                 if event.buttons() & Qt.LeftButton:
-                    self.mouseDragged.emit((x, y))
+                    self.mouseDragged.emit((x2d, y2d))
 
 
         return super().eventFilter(obj, event)
@@ -154,13 +166,14 @@ class CloudView(QWidget):
     # Left click / drag / double click handlers
     # =========================
     def _on_left_press(self, interactor, event):
-        self._start_pos = interactor.get_event_position()
-        self.leftPressed.emit(self._start_pos)
+        self._start_pos = self.plotter_widget.iren.get_event_position()
+        # self.leftPressed.emit(self._start_pos)
+        pass
 
 
     def _on_left_release(self, interactor, event):
         
-        current_pos = interactor.get_event_position()
+        current_pos = self.plotter_widget.iren.get_event_position()
         dx = current_pos[0] - self._start_pos[0]
         dy = current_pos[1] - self._start_pos[1]
         if (dx*dx + dy*dy)**0.5 > self._drag_threshold:
@@ -467,3 +480,11 @@ class CloudView(QWidget):
         self.is_drawing_polygon = False
         self.mode = self.is_drawing_polygon
 
+
+    def get_pos(self):
+        from PySide6.QtCore import QRect, QPoint
+        widget = self.placeholder_widget
+        widget.mapToGlobal(QPoint(0, 0))
+        top_left = widget.mapToGlobal(QPoint(0, 0))
+        size = widget.size()
+        return QRect(top_left, size)

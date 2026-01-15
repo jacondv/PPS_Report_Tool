@@ -28,6 +28,8 @@ class MoveShape(Tool):
         if not self._shape:
             return
         
+        self.highlight_shape(self._shape)
+        
         self.dragging = True
         self.press_pos = pos                       # vị trí chuột lúc click
         self.start_offset = self._shape.offset      # snapshot offset ban đầu

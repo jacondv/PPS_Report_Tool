@@ -26,7 +26,7 @@ class ReportCreateDialog(QDialog):
         self.ui.setupUi(self)
 
         self.ui.treeJobData.hide()
-        self.ui.btnOpen.hide()
+        # self.ui.btnOpen.hide()
 
         # ---------------- Views ----------------
 

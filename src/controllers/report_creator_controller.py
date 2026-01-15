@@ -244,17 +244,19 @@ class ReportCreatorController(QObject):
         self.report_dialog.show_image(thickness_chart)
 
 
-
 # Handler button event
     def on_export_clicked(self):
         self.crete_report()
+
 
     def on_update_clicked(self):
         self.upadte()
         self.report_dialog.ui.btnExport.setEnabled(True)
 
+
     def on_shotcrete_applied_changed(self):
         self.report_dialog.ui.btnExport.setEnabled(False)
+
 
     def on_add_annotation(self):
         
@@ -264,6 +266,7 @@ class ReportCreatorController(QObject):
 
     def on_annotation_toolbar(self):
         self.annotation_controller.show_annotation_toolbar()
+
 
     def on_shape_toolbar(self):
         self.shape_controller.show_shape_toolbar()

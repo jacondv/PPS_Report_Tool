@@ -15,17 +15,18 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QDateEdit, QDialog, QGroupBox,
-    QHBoxLayout, QHeaderView, QLabel, QLineEdit,
-    QPushButton, QSizePolicy, QSpacerItem, QSplitter,
-    QTimeEdit, QTreeWidget, QTreeWidgetItem, QVBoxLayout,
-    QWidget)
+from PySide6.QtWidgets import (QApplication, QDateEdit, QDialog, QFrame,
+    QGroupBox, QHBoxLayout, QHeaderView, QLabel,
+    QLineEdit, QPushButton, QSizePolicy, QSpacerItem,
+    QSplitter, QTimeEdit, QToolButton, QTreeWidget,
+    QTreeWidgetItem, QVBoxLayout, QWidget)
+from . import resource_rc
 
 class Ui_ReportCreate(object):
     def setupUi(self, ReportCreate):
         if not ReportCreate.objectName():
             ReportCreate.setObjectName(u"ReportCreate")
-        ReportCreate.resize(836, 878)
+        ReportCreate.resize(924, 807)
         ReportCreate.setStyleSheet(u"/* =========================\n"
 "   GLOBAL\n"
 "========================= */\n"
@@ -227,45 +228,11 @@ class Ui_ReportCreate(object):
         self.widget.setSizePolicy(sizePolicy)
         self.verticalLayout_4 = QVBoxLayout(self.widget)
         self.verticalLayout_4.setObjectName(u"verticalLayout_4")
-        self.widget_12 = QWidget(self.widget)
-        self.widget_12.setObjectName(u"widget_12")
+        self.groupBox = QGroupBox(self.widget)
+        self.groupBox.setObjectName(u"groupBox")
         sizePolicy1 = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         sizePolicy1.setHorizontalStretch(0)
         sizePolicy1.setVerticalStretch(0)
-        sizePolicy1.setHeightForWidth(self.widget_12.sizePolicy().hasHeightForWidth())
-        self.widget_12.setSizePolicy(sizePolicy1)
-        self.widget_12.setMinimumSize(QSize(0, 35))
-        self.widget_12.setMaximumSize(QSize(16777215, 40))
-        self.horizontalLayout_10 = QHBoxLayout(self.widget_12)
-        self.horizontalLayout_10.setObjectName(u"horizontalLayout_10")
-        self.horizontalLayout_10.setContentsMargins(-1, 2, -1, 2)
-        self.btnOpen = QPushButton(self.widget_12)
-        self.btnOpen.setObjectName(u"btnOpen")
-        sizePolicy2 = QSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Preferred)
-        sizePolicy2.setHorizontalStretch(0)
-        sizePolicy2.setVerticalStretch(0)
-        sizePolicy2.setHeightForWidth(self.btnOpen.sizePolicy().hasHeightForWidth())
-        self.btnOpen.setSizePolicy(sizePolicy2)
-        self.btnOpen.setMaximumSize(QSize(100, 16777215))
-
-        self.horizontalLayout_10.addWidget(self.btnOpen)
-
-        self.btnAddText = QPushButton(self.widget_12)
-        self.btnAddText.setObjectName(u"btnAddText")
-        sizePolicy2.setHeightForWidth(self.btnAddText.sizePolicy().hasHeightForWidth())
-        self.btnAddText.setSizePolicy(sizePolicy2)
-
-        self.horizontalLayout_10.addWidget(self.btnAddText)
-
-        self.horizontalSpacer_2 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
-
-        self.horizontalLayout_10.addItem(self.horizontalSpacer_2)
-
-
-        self.verticalLayout_4.addWidget(self.widget_12)
-
-        self.groupBox = QGroupBox(self.widget)
-        self.groupBox.setObjectName(u"groupBox")
         sizePolicy1.setHeightForWidth(self.groupBox.sizePolicy().hasHeightForWidth())
         self.groupBox.setSizePolicy(sizePolicy1)
         self.groupBox.setMaximumSize(QSize(16777215, 150))
@@ -491,7 +458,7 @@ class Ui_ReportCreate(object):
         self.groupBox_2.setObjectName(u"groupBox_2")
         sizePolicy.setHeightForWidth(self.groupBox_2.sizePolicy().hasHeightForWidth())
         self.groupBox_2.setSizePolicy(sizePolicy)
-        self.groupBox_2.setMinimumSize(QSize(0, 300))
+        self.groupBox_2.setMinimumSize(QSize(0, 200))
         self.horizontalLayout_12 = QHBoxLayout(self.groupBox_2)
         self.horizontalLayout_12.setObjectName(u"horizontalLayout_12")
         self.horizontalLayout_12.setContentsMargins(-1, 20, -1, -1)
@@ -515,11 +482,11 @@ class Ui_ReportCreate(object):
         self.splitter_2.addWidget(self.widget_13)
         self.cloud_viewer = QWidget(self.splitter_2)
         self.cloud_viewer.setObjectName(u"cloud_viewer")
-        sizePolicy3 = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Expanding)
-        sizePolicy3.setHorizontalStretch(0)
-        sizePolicy3.setVerticalStretch(0)
-        sizePolicy3.setHeightForWidth(self.cloud_viewer.sizePolicy().hasHeightForWidth())
-        self.cloud_viewer.setSizePolicy(sizePolicy3)
+        sizePolicy2 = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Expanding)
+        sizePolicy2.setHorizontalStretch(0)
+        sizePolicy2.setVerticalStretch(0)
+        sizePolicy2.setHeightForWidth(self.cloud_viewer.sizePolicy().hasHeightForWidth())
+        self.cloud_viewer.setSizePolicy(sizePolicy2)
         self.splitter_2.addWidget(self.cloud_viewer)
 
         self.horizontalLayout_12.addWidget(self.splitter_2)
@@ -528,12 +495,29 @@ class Ui_ReportCreate(object):
         self.widget_15.setObjectName(u"widget_15")
         self.verticalLayout_7 = QVBoxLayout(self.widget_15)
         self.verticalLayout_7.setObjectName(u"verticalLayout_7")
-        self.btnAnnotationTool = QPushButton(self.widget_15)
+        self.verticalLayout_7.setContentsMargins(0, 0, 0, 0)
+        self.btnAnnotationTool = QToolButton(self.widget_15)
         self.btnAnnotationTool.setObjectName(u"btnAnnotationTool")
-        sizePolicy2.setHeightForWidth(self.btnAnnotationTool.sizePolicy().hasHeightForWidth())
-        self.btnAnnotationTool.setSizePolicy(sizePolicy2)
+        sizePolicy3 = QSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+        sizePolicy3.setHorizontalStretch(0)
+        sizePolicy3.setVerticalStretch(0)
+        sizePolicy3.setHeightForWidth(self.btnAnnotationTool.sizePolicy().hasHeightForWidth())
+        self.btnAnnotationTool.setSizePolicy(sizePolicy3)
+        self.btnAnnotationTool.setToolTipDuration(1500)
+        icon = QIcon()
+        icon.addFile(u":/icon/icon/vector.png", QSize(), QIcon.Normal, QIcon.Off)
+        self.btnAnnotationTool.setIcon(icon)
+        self.btnAnnotationTool.setIconSize(QSize(30, 30))
+        self.btnAnnotationTool.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
 
         self.verticalLayout_7.addWidget(self.btnAnnotationTool)
+
+        self.line = QFrame(self.widget_15)
+        self.line.setObjectName(u"line")
+        self.line.setFrameShape(QFrame.HLine)
+        self.line.setFrameShadow(QFrame.Sunken)
+
+        self.verticalLayout_7.addWidget(self.line)
 
         self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
@@ -547,14 +531,14 @@ class Ui_ReportCreate(object):
         self.groupBox_3.setObjectName(u"groupBox_3")
         sizePolicy.setHeightForWidth(self.groupBox_3.sizePolicy().hasHeightForWidth())
         self.groupBox_3.setSizePolicy(sizePolicy)
-        self.groupBox_3.setMinimumSize(QSize(0, 300))
+        self.groupBox_3.setMinimumSize(QSize(0, 200))
         self.verticalLayout_6 = QVBoxLayout(self.groupBox_3)
         self.verticalLayout_6.setObjectName(u"verticalLayout_6")
         self.verticalLayout_6.setContentsMargins(-1, 20, -1, -1)
         self.chart_viewer_widget = QWidget(self.groupBox_3)
         self.chart_viewer_widget.setObjectName(u"chart_viewer_widget")
-        sizePolicy3.setHeightForWidth(self.chart_viewer_widget.sizePolicy().hasHeightForWidth())
-        self.chart_viewer_widget.setSizePolicy(sizePolicy3)
+        sizePolicy2.setHeightForWidth(self.chart_viewer_widget.sizePolicy().hasHeightForWidth())
+        self.chart_viewer_widget.setSizePolicy(sizePolicy2)
         self.horizontalLayout_11 = QHBoxLayout(self.chart_viewer_widget)
         self.horizontalLayout_11.setObjectName(u"horizontalLayout_11")
         self.chart_viewer = QLabel(self.chart_viewer_widget)
@@ -588,8 +572,6 @@ class Ui_ReportCreate(object):
 
     def retranslateUi(self, ReportCreate):
         ReportCreate.setWindowTitle(QCoreApplication.translate("ReportCreate", u"Dialog", None))
-        self.btnOpen.setText(QCoreApplication.translate("ReportCreate", u"Open", None))
-        self.btnAddText.setText(QCoreApplication.translate("ReportCreate", u"Add Text", None))
         self.groupBox.setTitle(QCoreApplication.translate("ReportCreate", u"REPORT INFORMATION", None))
         self.label.setText(QCoreApplication.translate("ReportCreate", u"Site", None))
         self.label_2.setText(QCoreApplication.translate("ReportCreate", u"Job Name", None))
@@ -607,6 +589,9 @@ class Ui_ReportCreate(object):
         self.btnUpdate.setText(QCoreApplication.translate("ReportCreate", u"Apply", None))
         self.btnExport.setText(QCoreApplication.translate("ReportCreate", u"Export to PDF", None))
         self.groupBox_2.setTitle(QCoreApplication.translate("ReportCreate", u"TUNNEL VIEW", None))
+#if QT_CONFIG(tooltip)
+        self.btnAnnotationTool.setToolTip("Show Annotation toolbar")
+#endif // QT_CONFIG(tooltip)
         self.btnAnnotationTool.setText(QCoreApplication.translate("ReportCreate", u"Annotation", None))
         self.groupBox_3.setTitle(QCoreApplication.translate("ReportCreate", u"SHOTCRETE THICKNESS DISTRIBUTION", None))
         self.chart_viewer.setText("")
