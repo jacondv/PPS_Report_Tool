@@ -18,14 +18,13 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
 from PySide6.QtWidgets import (QApplication, QComboBox, QDialog, QFontComboBox,
     QFrame, QHBoxLayout, QLabel, QPushButton,
     QSizePolicy, QVBoxLayout, QWidget)
-
 from . import resource_rc
 
 class Ui_AnnotationToolbar(object):
     def setupUi(self, AnnotationToolbar):
         if not AnnotationToolbar.objectName():
             AnnotationToolbar.setObjectName(u"AnnotationToolbar")
-        AnnotationToolbar.resize(396, 34)
+        AnnotationToolbar.resize(488, 34)
         sizePolicy = QSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -42,6 +41,15 @@ class Ui_AnnotationToolbar(object):
         self.horizontalLayout.setSpacing(2)
         self.horizontalLayout.setObjectName(u"horizontalLayout")
         self.horizontalLayout.setContentsMargins(2, 2, 10, 2)
+        self.btnSelect = QPushButton(self.widget)
+        self.btnSelect.setObjectName(u"btnSelect")
+        self.btnSelect.setMaximumSize(QSize(30, 30))
+        icon = QIcon()
+        icon.addFile(u":/icon/icon/cursor.png", QSize(), QIcon.Normal, QIcon.Off)
+        self.btnSelect.setIcon(icon)
+
+        self.horizontalLayout.addWidget(self.btnSelect)
+
         self.btnAddText = QPushButton(self.widget)
         self.btnAddText.setObjectName(u"btnAddText")
         sizePolicy1 = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
@@ -51,9 +59,9 @@ class Ui_AnnotationToolbar(object):
         self.btnAddText.setSizePolicy(sizePolicy1)
         self.btnAddText.setMinimumSize(QSize(30, 30))
         self.btnAddText.setMaximumSize(QSize(30, 30))
-        icon = QIcon()
-        icon.addFile(u":/icon/icon/text.png", QSize(), QIcon.Normal, QIcon.Off)
-        self.btnAddText.setIcon(icon)
+        icon1 = QIcon()
+        icon1.addFile(u":/icon/icon/text.png", QSize(), QIcon.Normal, QIcon.Off)
+        self.btnAddText.setIcon(icon1)
 
         self.horizontalLayout.addWidget(self.btnAddText)
 
@@ -100,9 +108,9 @@ class Ui_AnnotationToolbar(object):
         self.btnAddLine.setSizePolicy(sizePolicy1)
         self.btnAddLine.setMinimumSize(QSize(30, 30))
         self.btnAddLine.setMaximumSize(QSize(30, 30))
-        icon1 = QIcon()
-        icon1.addFile(u":/icon/icon/line.png", QSize(), QIcon.Normal, QIcon.Off)
-        self.btnAddLine.setIcon(icon1)
+        icon2 = QIcon()
+        icon2.addFile(u":/icon/icon/line.png", QSize(), QIcon.Normal, QIcon.Off)
+        self.btnAddLine.setIcon(icon2)
 
         self.horizontalLayout.addWidget(self.btnAddLine)
 
@@ -118,6 +126,18 @@ class Ui_AnnotationToolbar(object):
 
         self.horizontalLayout.addWidget(self.cbbSize)
 
+        self.btnEdit = QPushButton(self.widget)
+        self.btnEdit.setObjectName(u"btnEdit")
+        sizePolicy1.setHeightForWidth(self.btnEdit.sizePolicy().hasHeightForWidth())
+        self.btnEdit.setSizePolicy(sizePolicy1)
+        self.btnEdit.setMinimumSize(QSize(30, 30))
+        self.btnEdit.setMaximumSize(QSize(30, 30))
+        icon3 = QIcon()
+        icon3.addFile(u":/icon/icon/note.png", QSize(), QIcon.Normal, QIcon.Off)
+        self.btnEdit.setIcon(icon3)
+
+        self.horizontalLayout.addWidget(self.btnEdit)
+
         self.line_2 = QFrame(self.widget)
         self.line_2.setObjectName(u"line_2")
         self.line_2.setFrameShape(QFrame.VLine)
@@ -131,23 +151,11 @@ class Ui_AnnotationToolbar(object):
         self.btnMove.setSizePolicy(sizePolicy1)
         self.btnMove.setMinimumSize(QSize(30, 30))
         self.btnMove.setMaximumSize(QSize(30, 30))
-        icon2 = QIcon()
-        icon2.addFile(u":/icon/icon/move.png", QSize(), QIcon.Normal, QIcon.Off)
-        self.btnMove.setIcon(icon2)
+        icon4 = QIcon()
+        icon4.addFile(u":/icon/icon/move.png", QSize(), QIcon.Normal, QIcon.Off)
+        self.btnMove.setIcon(icon4)
 
         self.horizontalLayout.addWidget(self.btnMove)
-
-        self.btnEdit = QPushButton(self.widget)
-        self.btnEdit.setObjectName(u"btnEdit")
-        sizePolicy1.setHeightForWidth(self.btnEdit.sizePolicy().hasHeightForWidth())
-        self.btnEdit.setSizePolicy(sizePolicy1)
-        self.btnEdit.setMinimumSize(QSize(30, 30))
-        self.btnEdit.setMaximumSize(QSize(30, 30))
-        icon3 = QIcon()
-        icon3.addFile(u":/icon/icon/note.png", QSize(), QIcon.Normal, QIcon.Off)
-        self.btnEdit.setIcon(icon3)
-
-        self.horizontalLayout.addWidget(self.btnEdit)
 
         self.btnDelete = QPushButton(self.widget)
         self.btnDelete.setObjectName(u"btnDelete")
@@ -155,9 +163,9 @@ class Ui_AnnotationToolbar(object):
         self.btnDelete.setSizePolicy(sizePolicy1)
         self.btnDelete.setMinimumSize(QSize(30, 30))
         self.btnDelete.setMaximumSize(QSize(30, 30))
-        icon4 = QIcon()
-        icon4.addFile(u":/icon/icon/delete.png", QSize(), QIcon.Normal, QIcon.Off)
-        self.btnDelete.setIcon(icon4)
+        icon5 = QIcon()
+        icon5.addFile(u":/icon/icon/delete.png", QSize(), QIcon.Normal, QIcon.Off)
+        self.btnDelete.setIcon(icon5)
 
         self.horizontalLayout.addWidget(self.btnDelete)
 
@@ -167,9 +175,9 @@ class Ui_AnnotationToolbar(object):
         self.btnClose.setSizePolicy(sizePolicy1)
         self.btnClose.setMinimumSize(QSize(30, 30))
         self.btnClose.setMaximumSize(QSize(30, 30))
-        icon5 = QIcon()
-        icon5.addFile(u":/icon/icon/multiplication.png", QSize(), QIcon.Normal, QIcon.Off)
-        self.btnClose.setIcon(icon5)
+        icon6 = QIcon()
+        icon6.addFile(u":/icon/icon/multiplication.png", QSize(), QIcon.Normal, QIcon.Off)
+        self.btnClose.setIcon(icon6)
 
         self.horizontalLayout.addWidget(self.btnClose)
 
@@ -196,7 +204,7 @@ class Ui_AnnotationToolbar(object):
 
         self.retranslateUi(AnnotationToolbar)
 
-        self.cbbFontSize.setCurrentIndex(5)
+        self.cbbFontSize.setCurrentIndex(7)
         self.cbbSize.setCurrentIndex(0)
 
 

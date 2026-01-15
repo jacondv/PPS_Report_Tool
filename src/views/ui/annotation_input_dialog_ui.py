@@ -2,8 +2,14 @@ from PySide6.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout,
     QLabel, QLineEdit, QPushButton
 )
-from PySide6.QtCore import Qt, QPoint, Signal
+from PySide6.QtCore import Qt, QPoint, Signal, QSize
 
+from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
+    QFont, QFontDatabase, QGradient, QIcon,
+    QImage, QKeySequence, QLinearGradient, QPainter,
+    QPalette, QPixmap, QRadialGradient, QTransform)
+
+from . import resource_rc
 
 class AnnotationInputDialog(QDialog):
     
@@ -22,20 +28,28 @@ class AnnotationInputDialog(QDialog):
         self.edit.setPlaceholderText("Enter annotation...")
         
         # Buttons
-        btn_cancel = QPushButton("Cancel")
+        btn_cancel = QPushButton()
         btn_cancel.clicked.connect(self.reject)
 
-        btn_delete = QPushButton("Delete")
-        btn_delete.clicked.connect(self.on_delete)
+        icon = QIcon()
+        icon.addFile(u":/icon/icon/multiplication.png", QSize(), QIcon.Normal, QIcon.Off)
+        btn_cancel.setIcon(icon)
+
+        # btn_delete = QPushButton("Delete")
+        # btn_delete.clicked.connect(self.on_delete)
 
         self._btn_ok = QPushButton()       # không thêm vào layout → không hiển thị
+        icon1 = QIcon()
+        icon1.addFile(u":/icon/icon/check.png", QSize(), QIcon.Normal, QIcon.Off)
+        self._btn_ok.setIcon(icon1)
         self._btn_ok.clicked.connect(self.accept)
 
         # Layout ngang
         layout = QHBoxLayout(self)
         layout.addWidget(self.edit)
         layout.addWidget(btn_cancel)
-        layout.addWidget(btn_delete)
+        layout.addWidget(self._btn_ok)
+        # layout.addWidget(btn_delete)
         layout.setContentsMargins(0, 0, 20, 0)  # lề trái, trên, phải, dưới
 
 

@@ -19,10 +19,11 @@ class Shape2D(abc.ABC):
     bbox: Tuple[int, int, int, int] = (None, None, None, None)
 
     # ---------- Transform ----------
-    def move_by(self, dx: int, dy: int):
+    def move_to(self, dx: int, dy: int):
         ox, oy = self.offset
         self.offset = (ox + dx, oy + dy)
         self.update_bbox()
+
 
     def set_offset(self, offset: Tuple[int, int]):
         self.offset = offset
@@ -40,6 +41,7 @@ class Shape2D(abc.ABC):
     def world_points(self) -> np.ndarray:
         ox, oy = self.offset
         return self.to_points() + np.array([ox, oy])
+
 
     # ---------- BBox ----------
     def update_bbox(self):
@@ -70,6 +72,7 @@ class Line2D(Shape2D):
 
     def to_points(self) -> np.ndarray:
         return np.array([self.start, self.end], dtype=float)
+
 
 @dataclass
 class Text2D(Shape2D):

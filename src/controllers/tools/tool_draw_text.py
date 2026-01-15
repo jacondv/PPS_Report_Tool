@@ -41,6 +41,7 @@ class ToolDrawText(Tool):
         dialog.move_to(_x, _y)
 
         if dialog.exec() != QDialog.Accepted:
+            self.toolCompleted.emit(None)
             return
 
         text = dialog.edit.text()

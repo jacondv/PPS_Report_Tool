@@ -49,6 +49,8 @@ class ReportCreatorController(QObject):
 
         # Show maximize size
 
+    def dispose(self):
+        pass
 
     def _connect_signals(self):
 
@@ -279,3 +281,4 @@ class ReportCreatorController(QObject):
 #         "tolerance": 10
 #     }
 # }
+

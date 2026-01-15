@@ -2,8 +2,9 @@
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import QDialog
 from views.ui.segment_toolbar_ui import Ui_SegmentToolbar
+from views.components.tool_bar_base import ToolBar
 
-class SegmentToolbarView(QDialog):
+class SegmentToolbarView(ToolBar):
 
     segment_in = Signal()
     segment_out = Signal()
@@ -20,24 +21,24 @@ class SegmentToolbarView(QDialog):
         super().__init__(parent)
         self.ui = Ui_SegmentToolbar()
         self.ui.setupUi(self)
-        self.setWindowFlags(Qt.Window | Qt.WindowStaysOnTopHint)
-        self.setFocusPolicy(Qt.StrongFocus)
+        # self.setWindowFlags(Qt.Window | Qt.WindowStaysOnTopHint)
+        # self.setFocusPolicy(Qt.StrongFocus)
 
         self.installEventFilter(self)
         
         # Ẩn dialog khi khởi tạo
         self.hide()
         self.ui.btnSegmentIn.clicked.connect(self._on_btn_segment_in_clicked)
-        self.ui.btnSegmentOut.clicked.connect(self._on_btn_segment_out_clicked)
+        # self.ui.btnSegmentOut.clicked.connect(self._on_btn_segment_out_clicked)
         self.ui.btnExportSelection.clicked.connect(self._on_btn_export_selected_clicked)
         self.ui.btnClose.clicked.connect(self._on_btn_close_clicked)
         self.ui.btnClear.clicked.connect(self._on_btn_clear_clicked)
 
-        self.__buttons_to_disable = [self.ui.btnSegmentOut, self.ui.btnSegmentIn, self.ui.btnClose]
+        self.__buttons_to_disable = [self.ui.btnSegmentIn, self.ui.btnClose]
 
         self._btn_map = {
             "segmentin": self.ui.btnSegmentIn,
-            "segmentout": self.ui.btnSegmentOut,
+            # "segmentout": self.ui.btnSegmentOut,
             "exportselection": self.ui.btnExportSelection,
             "close": self.ui.btnClose,
             "clear": self.ui.btnClear

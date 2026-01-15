@@ -18,9 +18,11 @@ class ToolSelectShape(Tool):
         self.selected_shape: Optional[Shape2D] = None
         self.requires_disable_view = False  # không cần khóa camera
 
-    def on_activate(self):
-        self.selected_shape = None
 
+    def on_activate(self):
+        # self.selected_shape = None
+        self.highlight_shape(self.selected_shape)
+        
     def on_mouse_press(self, pos, button):
         if button != "left":
             return
@@ -31,6 +33,12 @@ class ToolSelectShape(Tool):
             self.selected_shape = shape
             self.highlight_shape(shape)
             self.shapeSelected.emit(shape)
+
+        
+
+
+        
+
         
 
     def highlight_shape(self, shape: Optional[Shape2D]):

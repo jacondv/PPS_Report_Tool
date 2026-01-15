@@ -8,6 +8,9 @@ import matplotlib.colors as mcolors
 from PySide6.QtCore import QTimer
 import vtk
 
+from views.components.save_plotter import SafePlotter
+
+
 from views.components.overlay_factory import OverlayFactory
 
 VIEW_MODE = 0
@@ -34,6 +37,7 @@ class CloudView(QWidget):
         super().__init__(placeholder_widget)
         self.placeholder_widget = placeholder_widget
         
+        
         self._camera_locked = False
 
         # Working mode
@@ -57,6 +61,7 @@ class CloudView(QWidget):
         self.plotter_widget = QtInteractor(placeholder_widget)
         self.plotter_widget.set_background('black')
 
+        self.plotter = SafePlotter(self.plotter_widget)
 
         # 2. THIẾT LẬP LAYER OVERLAY
         # Cho phép render window hỗ trợ nhiều layer
@@ -284,7 +289,8 @@ class CloudView(QWidget):
         if reset_camera:
             self.plotter_widget.reset_camera()
         else:
-            self.plotter_widget.render()
+            # self.plotter_widget.render()
+            self.plotter.render()
 
 
     def cleanup(self):
@@ -309,7 +315,8 @@ class CloudView(QWidget):
         actor = self._annotation_actors.get(ann_id)
         if actor:
             actor.SetVisibility(visible)
-            self.plotter_widget.render()
+            # self.plotter_widget.render()
+            self.plotter.render()
             
 
     # ---------------- Annotation Shape----------------
@@ -349,7 +356,8 @@ class CloudView(QWidget):
             self.overlay_renderer.AddActor(actor)
             self._text_actors[name] = actor
 
-        self.plotter_widget.render()
+        # self.plotter_widget.render()
+        self.plotter.render()
 
 
     def _color_to_rgb(self, color_name: str):
@@ -374,7 +382,8 @@ class CloudView(QWidget):
         actor = OverlayFactory.create_polyline(points_2d,**kwargs)
         
         self.overlay_renderer.AddActor(actor)
-        self.plotter_widget.render()
+        # self.plotter_widget.render()
+        self.plotter.render()
         self._shape_actors[name] = actor
 
 
@@ -414,7 +423,8 @@ class CloudView(QWidget):
         actor = self._shape_actors.get(shape_id)
         if actor:
             actor.SetVisibility(visible)
-            self.plotter_widget.render()
+            # self.plotter_widget.render()
+            self.plotter.render()
 
     # =========================
     # Polygon overlay
@@ -456,9 +466,4 @@ class CloudView(QWidget):
         # Finish chuyển sang view mode, reset self.is_drawing_polygon
         self.is_drawing_polygon = False
         self.mode = self.is_drawing_polygon
-
-
-
-
-
 

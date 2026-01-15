@@ -18,6 +18,7 @@ class AnnotationToolbarView(ToolBar):
     deleteSignal = Signal()
     closeClicked = Signal()
     cancelSignal = Signal()
+    selectSignal = Signal()
 
     fontChanged = Signal(str)
     fontsizeChanged = Signal(int)
@@ -42,6 +43,7 @@ class AnnotationToolbarView(ToolBar):
         self.ui.btnDelete.clicked.connect(self._onDelete)
         self.ui.btnClose.clicked.connect(self._onClose)
         self.ui.btnEdit.clicked.connect(self._onEdit)
+        self.ui.btnSelect.clicked.connect(self._onSelect)
 
         self.ui.cbbFont.currentFontChanged.connect(
             lambda font: self.fontChanged.emit(font.family())
@@ -137,4 +139,5 @@ class AnnotationToolbarView(ToolBar):
         self.cancelSignal.emit()
         self.hide()
 
-
+    def _onSelect(self):
+        self.selectSignal.emit()

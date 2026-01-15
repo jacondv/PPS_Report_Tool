@@ -42,6 +42,7 @@ class CloudController(QObject, BaseController):
         event_bus.cloud_visibility_changed.connect(self.on_cloud_visibility_changed)
 
 
+
     # ==================================================
     # Event handlers
     def on_cloud_visibility_changed(self, cloud_id: str, visible: bool):

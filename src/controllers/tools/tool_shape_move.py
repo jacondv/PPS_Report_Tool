@@ -1,5 +1,8 @@
 from controllers.tools.base_tool import Tool
+from typing import Optional
+
 from PySide6.QtCore import Signal
+from models.shape_model import Shape2D
 
 class MoveShape(Tool):
 
@@ -9,7 +12,7 @@ class MoveShape(Tool):
         super().__init__() 
         self.requires_disable_view = True
         self._shape = None
-        self.shape_model = shape_model
+        self.model = shape_model
         self.view = view
 
     def on_activate(self):
@@ -21,7 +24,7 @@ class MoveShape(Tool):
         if button != "left":
             return
         
-        self._shape = self.shape_model.find_nearest(pos)
+        self._shape = self.model.find_nearest(pos)
         if not self._shape:
             return
         
@@ -39,12 +42,29 @@ class MoveShape(Tool):
         offset = (self.start_offset[0] + dx,self.start_offset[1] + dy)
         self._shape.set_offset(offset)
 
-        self.view.render_shape(self._shape)
+        # self.view.render_shape(self._shape)
+        self.highlight_shape(self._shape)
 
     def on_mouse_release(self, pos, button):
         if button != "left" or not self._shape:
             return
         self.dragging = False
-        self.view.render_shape(self._shape)
-        self.toolCompleted.emit(None)
+        # self.view.render_shape(self._shape)
         self._shape = None
+        self.highlight_shape(None)
+
+
+    def highlight_shape(self, shape: Optional[Shape2D]):
+        # render lại tất cả shapes, shape được chọn vẽ màu đỏ
+        import copy
+        if shape is not None:
+            _temp = copy.deepcopy(shape)
+            _temp.color = "blue"
+            for s in self.model.all():
+                if s.id != shape.id:
+                    self.view.render_shape(s)
+                else:
+                    self.view.render_shape(_temp)
+        else:
+            for s in self.model.all():
+                self.view.render_shape(s)

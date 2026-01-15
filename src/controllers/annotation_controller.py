@@ -9,6 +9,7 @@ from controllers.tools.tool_shape_move import MoveShape
 from controllers.tools.tool_select_shape import ToolSelectShape
 from controllers.tools.tool_edit_text import ToolEditText
 from controllers.tools.tool_delete_shape import ToolDeleteShape
+from controllers.tools.tool_edit_line import ToolEditLine
 
 from controllers.base_controller import BaseController
 
@@ -35,10 +36,15 @@ class AnnotationController(BaseController):
         self.ann_toolbar.deleteSignal.connect(self.on_delete)
         self.ann_toolbar.sizeChanged.connect(self.on_size_changed)
         self.ann_toolbar.fontsizeChanged.connect(self.on_font_size_changed)
+        self.ann_toolbar.selectSignal.connect(self.on_request_select)
+        
 
         self.view.mouseMoved.connect(self.on_mouse_move)
         self.view.leftPressed.connect(self.on_left_pressed)
         self.view.leftReleased.connect(self.on_left_released)
+
+        # edit text request
+        self.view.leftDoubleClick.connect(self.on_request_edit_text)
 
         # tạo tool draw line
         self.draw_line_tool = ToolDrawLine(self.shape_mode, self.view)
@@ -53,8 +59,11 @@ class AnnotationController(BaseController):
         self.draw_text_tool.toolCompleted.connect(self.on_shape_completed)
 
         # tao tool edit shape
-        self.edit_shape_tool = ToolEditText(self.shape_mode, self.view, parent=self.view.placeholder_widget)
-        self.edit_shape_tool.toolCompleted.connect(self.on_shape_completed)
+        self.edit_text_tool = ToolEditText(self.shape_mode, self.view, parent=self.view.placeholder_widget)
+        self.edit_text_tool.toolCompleted.connect(self.on_shape_completed)
+
+        self.edit_line_tool = ToolEditLine(self.shape_mode, self.view, parent=self.view.placeholder_widget)
+        self.edit_line_tool.toolCompleted.connect(self.on_shape_completed)
 
         # tạo tool select shape
         self.select_shape_tool =  ToolSelectShape(self.shape_mode, self.view)
@@ -105,9 +114,12 @@ class AnnotationController(BaseController):
         elif tool == self.move_tool:
             ui.btnMove.setEnabled(False)
 
-        elif tool == self.edit_shape_tool:
+        elif tool == self.edit_text_tool:
             ui.btnEdit.setEnabled(False)
-                  
+        
+        elif tool == self.edit_line_tool:
+            ui.btnEdit.setEnabled(False)
+        
         # ---- thao tác theo selection ----
         ui.btnDelete.setEnabled(has_selection)
 
@@ -163,14 +175,28 @@ class AnnotationController(BaseController):
          self.set_tool(self.draw_text_tool)
 
 
+    def on_request_select(self):
+        self.set_tool(self.select_shape_tool)
+
+
+    def on_request_edit_text(self):
+
+        if self.current_ann and self.current_tool == self.select_shape_tool:
+            self.edit_text_tool.set_target(self.current_ann)
+            self.set_tool(self.edit_text_tool)
+        
+        else:
+            self.current_ann = None
+            self.set_tool(self.select_shape_tool)
+
+    #Move Annotation
     def on_request_move(self):
         self.set_tool(self.move_tool)
     
-
+    # Edit Shape
     def on_edit(self):
-        self.edit_shape_tool.set_target(self.current_ann)
-        self.set_tool(self.edit_shape_tool)
-        
+        self.set_tool(self.edit_line_tool)
+
 
     def on_delete(self):
         self.delete_shape_tool.set_target(self.current_ann)
@@ -180,9 +206,11 @@ class AnnotationController(BaseController):
     def on_size_changed(self, size):
         self.ann_line_width = size
 
+
     def on_font_size_changed(self, size):
         self.ann_font_size = size
     
+
     # ---------------- forward events to shape draw interface----------------
     def on_left_pressed(self, pos):
         if self.current_tool:
@@ -197,5 +225,4 @@ class AnnotationController(BaseController):
     def on_mouse_move(self, pos):
         if self.current_tool:
             self.current_tool.on_mouse_move(pos)
-
 
