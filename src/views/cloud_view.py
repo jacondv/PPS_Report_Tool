@@ -61,6 +61,9 @@ class CloudView(QWidget):
         self.plotter_widget = QtInteractor(placeholder_widget)
         self.plotter_widget.set_background('black')
 
+        # self.plotter_widget.setFixedSize(800, 600)
+
+
         self.plotter = SafePlotter(self.plotter_widget)
 
         # 2. THIẾT LẬP LAYER OVERLAY
@@ -71,6 +74,7 @@ class CloudView(QWidget):
         self.overlay_renderer = vtk.vtkRenderer()
         self.overlay_renderer.SetLayer(1)           # Nằm trên Layer 0
         self.overlay_renderer.InteractiveOff()      # Không chặn chuột của lớp 3D bên dưới
+        self.overlay_renderer.SetViewport(0, 0, 1, 1)
 
         self.plotter_widget.render_window.AddRenderer(self.overlay_renderer)
 
@@ -233,7 +237,10 @@ class CloudView(QWidget):
   
   
     def capture_current_view(self):
-        return self.plotter_widget.screenshot(return_img=True)
+        return self.plotter_widget.screenshot(
+            return_img=True,
+            scale=1)
+
 
 
     def enable(self, value=True):
@@ -266,6 +273,71 @@ class CloudView(QWidget):
         else:
             self.plotter_widget.clear()
 
+    def _auto_set_camera(self, points: np.ndarray):
+        plotter = self.plotter_widget
+
+        # ----------------------------
+        # 1. Kiểm tra có gần phẳng không
+        # ----------------------------
+        extent = points.max(axis=0) - points.min(axis=0)
+        e = np.sort(extent)
+        flatness = e[0] / (e[1] + 1e-6)
+
+        if flatness >= 0.45:
+            plotter.reset_camera()
+            return  # KHÔNG xoay camera
+
+
+        # --------------------------------
+        # 2. Estimate normal TỪ POINT
+        #    (PCA trên sample nhỏ)
+        # --------------------------------
+        N = points.shape[0]
+        k = min(50000, N)   # rất nhanh
+        idx = np.random.choice(N, k, replace=False)
+
+        P = points[idx]
+        center = P.mean(axis=0)
+        X = P - center
+
+        cov = np.cov(X.T)
+        eigvals, eigvecs = np.linalg.eigh(cov)
+
+        normal = eigvecs[:, np.argmin(eigvals)]
+        normal /= np.linalg.norm(normal)
+        
+        # ----------------------------
+        # 3. Xác định hướng pháp tuyến
+        # ----------------------------
+        # trục mỏng nhất = pháp tuyến
+
+        view_dir = -normal
+
+        # ----------------------------
+        # 4. Set camera
+        # ----------------------------
+        center = points.mean(axis=0)
+
+        bounds = plotter.bounds
+        diag = np.linalg.norm([
+            bounds[1] - bounds[0],
+            bounds[3] - bounds[2],
+            bounds[5] - bounds[4],
+        ])
+        dist = diag * 1.5
+
+        cam_pos = center + view_dir * dist
+
+        up = np.array([0, 0, 1])
+        if abs(np.dot(up, view_dir)) > 0.9:
+            up = np.array([0, 1, 0])
+
+        plotter.camera_position = [
+            cam_pos.tolist(),
+            center.tolist(),
+            up.tolist()
+        ]
+        
 
     def display_cloud(self, points: np.ndarray, colors=None, normals: np.ndarray = None, point_size: int = 2, cloud_id: str = None, reset_camera=True):
         point_cloud = pv.PolyData(points)
@@ -300,7 +372,8 @@ class CloudView(QWidget):
             self._cloud_actors[cloud_id] = actor
 
         if reset_camera:
-            self.plotter_widget.reset_camera()
+            # self.plotter_widget.reset_camera()
+            self._auto_set_camera(points)
         else:
             # self.plotter_widget.render()
             self.plotter.render()

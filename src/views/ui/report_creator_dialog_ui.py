@@ -16,17 +16,16 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QDateEdit, QDialog, QFrame,
-    QGroupBox, QHBoxLayout, QHeaderView, QLabel,
-    QLineEdit, QPushButton, QSizePolicy, QSpacerItem,
-    QSplitter, QTimeEdit, QToolButton, QTreeWidget,
-    QTreeWidgetItem, QVBoxLayout, QWidget)
+    QGroupBox, QHBoxLayout, QLabel, QLineEdit,
+    QSizePolicy, QSpacerItem, QSplitter, QTimeEdit,
+    QToolButton, QVBoxLayout, QWidget)
 from . import resource_rc
 
 class Ui_ReportCreate(object):
     def setupUi(self, ReportCreate):
         if not ReportCreate.objectName():
             ReportCreate.setObjectName(u"ReportCreate")
-        ReportCreate.resize(924, 807)
+        ReportCreate.resize(1011, 779)
         ReportCreate.setStyleSheet(u"/* =========================\n"
 "   GLOBAL\n"
 "========================= */\n"
@@ -212,7 +211,6 @@ class Ui_ReportCreate(object):
 "   CLOUD VIEW PLACEHOLDER\n"
 "========================= */\n"
 "QWidget#cloud_viewer {\n"
-"    background-color: #ffffff;\n"
 "    border: 1px solid #cfcfcf;\n"
 "}\n"
 "")
@@ -324,12 +322,19 @@ class Ui_ReportCreate(object):
 
         self.horizontalLayout_9.addWidget(self.widget_2)
 
+        self.line_9 = QFrame(self.groupBox)
+        self.line_9.setObjectName(u"line_9")
+        self.line_9.setFrameShape(QFrame.VLine)
+        self.line_9.setFrameShadow(QFrame.Sunken)
+
+        self.horizontalLayout_9.addWidget(self.line_9)
+
         self.widget_7 = QWidget(self.groupBox)
         self.widget_7.setObjectName(u"widget_7")
         self.verticalLayout_3 = QVBoxLayout(self.widget_7)
         self.verticalLayout_3.setSpacing(2)
         self.verticalLayout_3.setObjectName(u"verticalLayout_3")
-        self.verticalLayout_3.setContentsMargins(0, 0, 0, 0)
+        self.verticalLayout_3.setContentsMargins(-1, 0, 0, 0)
         self.widget_8 = QWidget(self.widget_7)
         self.widget_8.setObjectName(u"widget_8")
         self.horizontalLayout_5 = QHBoxLayout(self.widget_8)
@@ -376,30 +381,26 @@ class Ui_ReportCreate(object):
 
         self.verticalLayout_3.addWidget(self.widget_11)
 
-        self.widget_9 = QWidget(self.widget_7)
-        self.widget_9.setObjectName(u"widget_9")
-        self.horizontalLayout_6 = QHBoxLayout(self.widget_9)
-        self.horizontalLayout_6.setObjectName(u"horizontalLayout_6")
-        self.horizontalLayout_6.setContentsMargins(0, 0, 0, 0)
-        self.label_6 = QLabel(self.widget_9)
-        self.label_6.setObjectName(u"label_6")
+        self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
-        self.horizontalLayout_6.addWidget(self.label_6)
-
-        self.txtAverageThickness = QLineEdit(self.widget_9)
-        self.txtAverageThickness.setObjectName(u"txtAverageThickness")
-
-        self.horizontalLayout_6.addWidget(self.txtAverageThickness)
-
-        self.label_11 = QLabel(self.widget_9)
-        self.label_11.setObjectName(u"label_11")
-
-        self.horizontalLayout_6.addWidget(self.label_11)
+        self.verticalLayout_3.addItem(self.verticalSpacer)
 
 
-        self.verticalLayout_3.addWidget(self.widget_9)
+        self.horizontalLayout_9.addWidget(self.widget_7)
 
-        self.widget_10 = QWidget(self.widget_7)
+        self.line_10 = QFrame(self.groupBox)
+        self.line_10.setObjectName(u"line_10")
+        self.line_10.setFrameShape(QFrame.VLine)
+        self.line_10.setFrameShadow(QFrame.Sunken)
+
+        self.horizontalLayout_9.addWidget(self.line_10)
+
+        self.widget_13 = QWidget(self.groupBox)
+        self.widget_13.setObjectName(u"widget_13")
+        self.verticalLayout_7 = QVBoxLayout(self.widget_13)
+        self.verticalLayout_7.setObjectName(u"verticalLayout_7")
+        self.verticalLayout_7.setContentsMargins(-1, 0, 0, 0)
+        self.widget_10 = QWidget(self.widget_13)
         self.widget_10.setObjectName(u"widget_10")
         self.horizontalLayout_7 = QHBoxLayout(self.widget_10)
         self.horizontalLayout_7.setObjectName(u"horizontalLayout_7")
@@ -420,24 +421,91 @@ class Ui_ReportCreate(object):
         self.horizontalLayout_7.addWidget(self.label_12)
 
 
-        self.verticalLayout_3.addWidget(self.widget_10)
+        self.verticalLayout_7.addWidget(self.widget_10)
+
+        self.widget_16 = QWidget(self.widget_13)
+        self.widget_16.setObjectName(u"widget_16")
+        self.horizontalLayout_14 = QHBoxLayout(self.widget_16)
+        self.horizontalLayout_14.setObjectName(u"horizontalLayout_14")
+        self.horizontalLayout_14.setContentsMargins(0, 0, 0, 0)
+        self.label_13 = QLabel(self.widget_16)
+        self.label_13.setObjectName(u"label_13")
+
+        self.horizontalLayout_14.addWidget(self.label_13)
+
+        self.txtShotcreteApplied_2 = QLineEdit(self.widget_16)
+        self.txtShotcreteApplied_2.setObjectName(u"txtShotcreteApplied_2")
+
+        self.horizontalLayout_14.addWidget(self.txtShotcreteApplied_2)
+
+        self.label_14 = QLabel(self.widget_16)
+        self.label_14.setObjectName(u"label_14")
+
+        self.horizontalLayout_14.addWidget(self.label_14)
 
 
-        self.horizontalLayout_9.addWidget(self.widget_7)
+        self.verticalLayout_7.addWidget(self.widget_16)
+
+        self.widget_9 = QWidget(self.widget_13)
+        self.widget_9.setObjectName(u"widget_9")
+        self.horizontalLayout_6 = QHBoxLayout(self.widget_9)
+        self.horizontalLayout_6.setObjectName(u"horizontalLayout_6")
+        self.horizontalLayout_6.setContentsMargins(0, 0, 0, 0)
+        self.label_6 = QLabel(self.widget_9)
+        self.label_6.setObjectName(u"label_6")
+
+        self.horizontalLayout_6.addWidget(self.label_6)
+
+        self.txtAverageThickness = QLineEdit(self.widget_9)
+        self.txtAverageThickness.setObjectName(u"txtAverageThickness")
+
+        self.horizontalLayout_6.addWidget(self.txtAverageThickness)
+
+        self.label_11 = QLabel(self.widget_9)
+        self.label_11.setObjectName(u"label_11")
+
+        self.horizontalLayout_6.addWidget(self.label_11)
+
+
+        self.verticalLayout_7.addWidget(self.widget_9)
+
+        self.verticalSpacer_2 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+
+        self.verticalLayout_7.addItem(self.verticalSpacer_2)
+
+
+        self.horizontalLayout_9.addWidget(self.widget_13)
+
+        self.line_11 = QFrame(self.groupBox)
+        self.line_11.setObjectName(u"line_11")
+        self.line_11.setFrameShape(QFrame.VLine)
+        self.line_11.setFrameShadow(QFrame.Sunken)
+
+        self.horizontalLayout_9.addWidget(self.line_11)
 
         self.widget_14 = QWidget(self.groupBox)
         self.widget_14.setObjectName(u"widget_14")
         self.horizontalLayout_13 = QHBoxLayout(self.widget_14)
+        self.horizontalLayout_13.setSpacing(0)
         self.horizontalLayout_13.setObjectName(u"horizontalLayout_13")
-        self.btnUpdate = QPushButton(self.widget_14)
+        self.horizontalLayout_13.setContentsMargins(0, 0, 0, 0)
+        self.btnUpdate = QToolButton(self.widget_14)
         self.btnUpdate.setObjectName(u"btnUpdate")
-        self.btnUpdate.setMinimumSize(QSize(60, 30))
+        icon = QIcon()
+        icon.addFile(u":/icon/icon/arrow.png", QSize(), QIcon.Normal, QIcon.Off)
+        self.btnUpdate.setIcon(icon)
+        self.btnUpdate.setIconSize(QSize(30, 30))
+        self.btnUpdate.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
 
         self.horizontalLayout_13.addWidget(self.btnUpdate)
 
-        self.btnExport = QPushButton(self.widget_14)
+        self.btnExport = QToolButton(self.widget_14)
         self.btnExport.setObjectName(u"btnExport")
-        self.btnExport.setMinimumSize(QSize(80, 30))
+        icon1 = QIcon()
+        icon1.addFile(u":/icon/icon/pdf.png", QSize(), QIcon.Normal, QIcon.Off)
+        self.btnExport.setIcon(icon1)
+        self.btnExport.setIconSize(QSize(30, 30))
+        self.btnExport.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
 
         self.horizontalLayout_13.addWidget(self.btnExport)
 
@@ -453,92 +521,88 @@ class Ui_ReportCreate(object):
 
         self.splitter = QSplitter(self.widget)
         self.splitter.setObjectName(u"splitter")
+        sizePolicy2 = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        sizePolicy2.setHorizontalStretch(0)
+        sizePolicy2.setVerticalStretch(0)
+        sizePolicy2.setHeightForWidth(self.splitter.sizePolicy().hasHeightForWidth())
+        self.splitter.setSizePolicy(sizePolicy2)
         self.splitter.setOrientation(Qt.Vertical)
         self.groupBox_2 = QGroupBox(self.splitter)
         self.groupBox_2.setObjectName(u"groupBox_2")
         sizePolicy.setHeightForWidth(self.groupBox_2.sizePolicy().hasHeightForWidth())
         self.groupBox_2.setSizePolicy(sizePolicy)
-        self.groupBox_2.setMinimumSize(QSize(0, 200))
-        self.horizontalLayout_12 = QHBoxLayout(self.groupBox_2)
-        self.horizontalLayout_12.setObjectName(u"horizontalLayout_12")
-        self.horizontalLayout_12.setContentsMargins(-1, 20, -1, -1)
-        self.splitter_2 = QSplitter(self.groupBox_2)
-        self.splitter_2.setObjectName(u"splitter_2")
-        self.splitter_2.setOrientation(Qt.Horizontal)
-        self.widget_13 = QWidget(self.splitter_2)
-        self.widget_13.setObjectName(u"widget_13")
-        self.widget_13.setMaximumSize(QSize(300, 16777215))
-        self.verticalLayout_5 = QVBoxLayout(self.widget_13)
-        self.verticalLayout_5.setObjectName(u"verticalLayout_5")
-        self.verticalLayout_5.setContentsMargins(0, 0, 0, 0)
-        self.treeJobData = QTreeWidget(self.widget_13)
-        __qtreewidgetitem = QTreeWidgetItem()
-        __qtreewidgetitem.setText(0, u"1");
-        self.treeJobData.setHeaderItem(__qtreewidgetitem)
-        self.treeJobData.setObjectName(u"treeJobData")
-
-        self.verticalLayout_5.addWidget(self.treeJobData)
-
-        self.splitter_2.addWidget(self.widget_13)
-        self.cloud_viewer = QWidget(self.splitter_2)
-        self.cloud_viewer.setObjectName(u"cloud_viewer")
-        sizePolicy2 = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Expanding)
-        sizePolicy2.setHorizontalStretch(0)
-        sizePolicy2.setVerticalStretch(0)
-        sizePolicy2.setHeightForWidth(self.cloud_viewer.sizePolicy().hasHeightForWidth())
-        self.cloud_viewer.setSizePolicy(sizePolicy2)
-        self.splitter_2.addWidget(self.cloud_viewer)
-
-        self.horizontalLayout_12.addWidget(self.splitter_2)
-
+        self.verticalLayout_9 = QVBoxLayout(self.groupBox_2)
+        self.verticalLayout_9.setObjectName(u"verticalLayout_9")
+        self.verticalLayout_9.setContentsMargins(-1, 0, -1, -1)
         self.widget_15 = QWidget(self.groupBox_2)
         self.widget_15.setObjectName(u"widget_15")
-        self.verticalLayout_7 = QVBoxLayout(self.widget_15)
-        self.verticalLayout_7.setObjectName(u"verticalLayout_7")
-        self.verticalLayout_7.setContentsMargins(0, 0, 0, 0)
-        self.btnAnnotationTool = QToolButton(self.widget_15)
-        self.btnAnnotationTool.setObjectName(u"btnAnnotationTool")
-        sizePolicy3 = QSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+        self.widget_15.setMaximumSize(QSize(16777215, 30))
+        self.horizontalLayout_12 = QHBoxLayout(self.widget_15)
+        self.horizontalLayout_12.setObjectName(u"horizontalLayout_12")
+        self.horizontalLayout_12.setContentsMargins(0, 0, 0, 0)
+        self.widget_toolbar = QWidget(self.widget_15)
+        self.widget_toolbar.setObjectName(u"widget_toolbar")
+        self.widget_toolbar.setMaximumSize(QSize(16777215, 35))
+        self.horizontalLayout_10 = QHBoxLayout(self.widget_toolbar)
+        self.horizontalLayout_10.setSpacing(2)
+        self.horizontalLayout_10.setObjectName(u"horizontalLayout_10")
+        self.horizontalLayout_10.setContentsMargins(0, 0, 20, 0)
+        self.horizontalSpacer_2 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_10.addItem(self.horizontalSpacer_2)
+
+
+        self.horizontalLayout_12.addWidget(self.widget_toolbar)
+
+
+        self.verticalLayout_9.addWidget(self.widget_15)
+
+        self.splitter_2 = QSplitter(self.groupBox_2)
+        self.splitter_2.setObjectName(u"splitter_2")
+        self.splitter_2.setFrameShape(QFrame.StyledPanel)
+        self.splitter_2.setOrientation(Qt.Horizontal)
+        self.cloud_over_viewer = QWidget(self.splitter_2)
+        self.cloud_over_viewer.setObjectName(u"cloud_over_viewer")
+        self.cloud_over_viewer.setMaximumSize(QSize(500, 16777215))
+        self.verticalLayout_5 = QVBoxLayout(self.cloud_over_viewer)
+        self.verticalLayout_5.setObjectName(u"verticalLayout_5")
+        self.verticalLayout_5.setContentsMargins(0, 0, 0, 0)
+        self.splitter_2.addWidget(self.cloud_over_viewer)
+        self.widget_17 = QWidget(self.splitter_2)
+        self.widget_17.setObjectName(u"widget_17")
+        sizePolicy3 = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Expanding)
         sizePolicy3.setHorizontalStretch(0)
         sizePolicy3.setVerticalStretch(0)
-        sizePolicy3.setHeightForWidth(self.btnAnnotationTool.sizePolicy().hasHeightForWidth())
-        self.btnAnnotationTool.setSizePolicy(sizePolicy3)
-        self.btnAnnotationTool.setToolTipDuration(1500)
-        icon = QIcon()
-        icon.addFile(u":/icon/icon/vector.png", QSize(), QIcon.Normal, QIcon.Off)
-        self.btnAnnotationTool.setIcon(icon)
-        self.btnAnnotationTool.setIconSize(QSize(30, 30))
-        self.btnAnnotationTool.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
+        sizePolicy3.setHeightForWidth(self.widget_17.sizePolicy().hasHeightForWidth())
+        self.widget_17.setSizePolicy(sizePolicy3)
+        self.widget_17.setMinimumSize(QSize(0, 300))
+        self.verticalLayout_8 = QVBoxLayout(self.widget_17)
+        self.verticalLayout_8.setObjectName(u"verticalLayout_8")
+        self.verticalLayout_8.setContentsMargins(0, 0, 0, 0)
+        self.cloud_viewer = QWidget(self.widget_17)
+        self.cloud_viewer.setObjectName(u"cloud_viewer")
+        sizePolicy2.setHeightForWidth(self.cloud_viewer.sizePolicy().hasHeightForWidth())
+        self.cloud_viewer.setSizePolicy(sizePolicy2)
 
-        self.verticalLayout_7.addWidget(self.btnAnnotationTool)
+        self.verticalLayout_8.addWidget(self.cloud_viewer)
 
-        self.line = QFrame(self.widget_15)
-        self.line.setObjectName(u"line")
-        self.line.setFrameShape(QFrame.HLine)
-        self.line.setFrameShadow(QFrame.Sunken)
+        self.splitter_2.addWidget(self.widget_17)
 
-        self.verticalLayout_7.addWidget(self.line)
-
-        self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
-
-        self.verticalLayout_7.addItem(self.verticalSpacer)
-
-
-        self.horizontalLayout_12.addWidget(self.widget_15)
+        self.verticalLayout_9.addWidget(self.splitter_2)
 
         self.splitter.addWidget(self.groupBox_2)
         self.groupBox_3 = QGroupBox(self.splitter)
         self.groupBox_3.setObjectName(u"groupBox_3")
         sizePolicy.setHeightForWidth(self.groupBox_3.sizePolicy().hasHeightForWidth())
         self.groupBox_3.setSizePolicy(sizePolicy)
-        self.groupBox_3.setMinimumSize(QSize(0, 200))
+        self.groupBox_3.setMinimumSize(QSize(0, 250))
         self.verticalLayout_6 = QVBoxLayout(self.groupBox_3)
         self.verticalLayout_6.setObjectName(u"verticalLayout_6")
         self.verticalLayout_6.setContentsMargins(-1, 20, -1, -1)
         self.chart_viewer_widget = QWidget(self.groupBox_3)
         self.chart_viewer_widget.setObjectName(u"chart_viewer_widget")
-        sizePolicy2.setHeightForWidth(self.chart_viewer_widget.sizePolicy().hasHeightForWidth())
-        self.chart_viewer_widget.setSizePolicy(sizePolicy2)
+        sizePolicy3.setHeightForWidth(self.chart_viewer_widget.sizePolicy().hasHeightForWidth())
+        self.chart_viewer_widget.setSizePolicy(sizePolicy3)
         self.horizontalLayout_11 = QHBoxLayout(self.chart_viewer_widget)
         self.horizontalLayout_11.setObjectName(u"horizontalLayout_11")
         self.chart_viewer = QLabel(self.chart_viewer_widget)
@@ -582,17 +646,15 @@ class Ui_ReportCreate(object):
         self.label_9.setText(QCoreApplication.translate("ReportCreate", u"(mm)", None))
         self.label_8.setText(QCoreApplication.translate("ReportCreate", u"Tolerance", None))
         self.label_10.setText(QCoreApplication.translate("ReportCreate", u"(mm)", None))
-        self.label_6.setText(QCoreApplication.translate("ReportCreate", u"Average Thickness", None))
-        self.label_11.setText(QCoreApplication.translate("ReportCreate", u"(mm)", None))
         self.label_7.setText(QCoreApplication.translate("ReportCreate", u"Shotcrete Volume", None))
         self.label_12.setText(QCoreApplication.translate("ReportCreate", u"(m\u00b3)", None))
+        self.label_13.setText(QCoreApplication.translate("ReportCreate", u"Surface  Area", None))
+        self.label_14.setText(QCoreApplication.translate("ReportCreate", u"(m\u00b2)", None))
+        self.label_6.setText(QCoreApplication.translate("ReportCreate", u"Average Thickness", None))
+        self.label_11.setText(QCoreApplication.translate("ReportCreate", u"(mm)", None))
         self.btnUpdate.setText(QCoreApplication.translate("ReportCreate", u"Apply", None))
-        self.btnExport.setText(QCoreApplication.translate("ReportCreate", u"Export to PDF", None))
+        self.btnExport.setText(QCoreApplication.translate("ReportCreate", u"Export", None))
         self.groupBox_2.setTitle(QCoreApplication.translate("ReportCreate", u"TUNNEL VIEW", None))
-#if QT_CONFIG(tooltip)
-        self.btnAnnotationTool.setToolTip("Show Annotation toolbar")
-#endif // QT_CONFIG(tooltip)
-        self.btnAnnotationTool.setText(QCoreApplication.translate("ReportCreate", u"Annotation", None))
         self.groupBox_3.setTitle(QCoreApplication.translate("ReportCreate", u"SHOTCRETE THICKNESS DISTRIBUTION", None))
         self.chart_viewer.setText("")
     # retranslateUi

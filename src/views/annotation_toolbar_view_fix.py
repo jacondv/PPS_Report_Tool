@@ -1,9 +1,9 @@
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtWidgets import QDialog
+from PySide6.QtWidgets import QDialog, QWidget
 from views.ui.annotation_toolbar_ui import Ui_AnnotationToolbar
 from views.components.tool_bar_base import ToolBar
 
-class AnnotationToolbarView(ToolBar):
+class AnnotationToolbarView(QWidget):
     """
     Annotation Toolbar Dialog (View)
     - Chỉ hiển thị UI
@@ -30,10 +30,9 @@ class AnnotationToolbarView(ToolBar):
 
         self.ui = Ui_AnnotationToolbar()
         self.ui.setupUi(self)
-        self.installEventFilter(self)
+        # self.installEventFilter(self)
 
         # Ẩn khi khởi tạo
-        self.hide()
 
         # -------- connect UI --------
         self.ui.btnAddText.clicked.connect(self._onAddText)
@@ -82,17 +81,6 @@ class AnnotationToolbarView(ToolBar):
                 raise ValueError(f"Button '{name}' not found")
             btn.setVisible(visible)
             
-    # -------- dialog control --------
-    def open(self):
-        self.show()
-
-
-    def closeEvent(self, event):
-        """
-        User bấm X / Alt+F4
-        """
-        self.cancelSignal.emit()
-        event.ignore()   # chỉ ẩn dialog
 
     # -------- enable / disable --------
     def enable(self, names=None):

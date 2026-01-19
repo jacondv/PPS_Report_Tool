@@ -16,8 +16,8 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QComboBox, QDialog, QFontComboBox,
-    QFrame, QHBoxLayout, QLabel, QPushButton,
-    QSizePolicy, QVBoxLayout, QWidget)
+    QFrame, QHBoxLayout, QPushButton, QSizePolicy,
+    QVBoxLayout, QWidget)
 from . import resource_rc
 
 class Ui_AnnotationToolbar(object):
@@ -43,6 +43,12 @@ class Ui_AnnotationToolbar(object):
         self.horizontalLayout.setContentsMargins(2, 2, 10, 2)
         self.btnSelect = QPushButton(self.widget)
         self.btnSelect.setObjectName(u"btnSelect")
+        sizePolicy1 = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        sizePolicy1.setHorizontalStretch(0)
+        sizePolicy1.setVerticalStretch(0)
+        sizePolicy1.setHeightForWidth(self.btnSelect.sizePolicy().hasHeightForWidth())
+        self.btnSelect.setSizePolicy(sizePolicy1)
+        self.btnSelect.setMinimumSize(QSize(30, 30))
         self.btnSelect.setMaximumSize(QSize(30, 30))
         icon = QIcon()
         icon.addFile(u":/icon/icon/cursor.png", QSize(), QIcon.Normal, QIcon.Off)
@@ -52,9 +58,6 @@ class Ui_AnnotationToolbar(object):
 
         self.btnAddText = QPushButton(self.widget)
         self.btnAddText.setObjectName(u"btnAddText")
-        sizePolicy1 = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
-        sizePolicy1.setHorizontalStretch(0)
-        sizePolicy1.setVerticalStretch(0)
         sizePolicy1.setHeightForWidth(self.btnAddText.sizePolicy().hasHeightForWidth())
         self.btnAddText.setSizePolicy(sizePolicy1)
         self.btnAddText.setMinimumSize(QSize(30, 30))
@@ -64,14 +67,6 @@ class Ui_AnnotationToolbar(object):
         self.btnAddText.setIcon(icon1)
 
         self.horizontalLayout.addWidget(self.btnAddText)
-
-        self.cbbFont = QFontComboBox(self.widget)
-        self.cbbFont.setObjectName(u"cbbFont")
-        self.cbbFont.setMinimumSize(QSize(0, 30))
-        self.cbbFont.setMaximumSize(QSize(100, 30))
-        self.cbbFont.setCurrentIndex(9)
-
-        self.horizontalLayout.addWidget(self.cbbFont)
 
         self.cbbFontSize = QComboBox(self.widget)
         self.cbbFontSize.addItem("")
@@ -94,6 +89,14 @@ class Ui_AnnotationToolbar(object):
         self.cbbFontSize.setMaximumSize(QSize(40, 30))
 
         self.horizontalLayout.addWidget(self.cbbFontSize)
+
+        self.cbbFont = QFontComboBox(self.widget)
+        self.cbbFont.setObjectName(u"cbbFont")
+        self.cbbFont.setMinimumSize(QSize(0, 30))
+        self.cbbFont.setMaximumSize(QSize(100, 30))
+        self.cbbFont.setCurrentIndex(9)
+
+        self.horizontalLayout.addWidget(self.cbbFont)
 
         self.line = QFrame(self.widget)
         self.line.setObjectName(u"line")
@@ -187,16 +190,6 @@ class Ui_AnnotationToolbar(object):
         self.line_3.setFrameShadow(QFrame.Sunken)
 
         self.horizontalLayout.addWidget(self.line_3)
-
-        self.label = QLabel(self.widget)
-        self.label.setObjectName(u"label")
-        sizePolicy.setHeightForWidth(self.label.sizePolicy().hasHeightForWidth())
-        self.label.setSizePolicy(sizePolicy)
-        self.label.setMaximumSize(QSize(15, 15))
-        self.label.setPixmap(QPixmap(u":/icon/icon/drag.png"))
-        self.label.setScaledContents(True)
-
-        self.horizontalLayout.addWidget(self.label)
 
 
         self.verticalLayout.addWidget(self.widget)

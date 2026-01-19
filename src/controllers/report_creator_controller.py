@@ -34,18 +34,21 @@ class ReportCreatorController(QObject):
         self.cloud_service = cloud_service
         self.job_service = job_service
         self.cloud_view = self.report_dialog.cloud_view
+        self.ann_toolbar = self.report_dialog.ann_toolbar
+
         self.cloud_controller = CloudController(self.cloud_view, self.cloud_service, self.job_service)
 
         self.shape_model = Shape2DModel()
-        self.annotation_controller = AnnotationController(self.cloud_view, self.shape_model)
-
+        self.annotation_controller = AnnotationController(self.cloud_view, self.shape_model, self.ann_toolbar)
+        
         self.report_generator = ReportGenerator()
 
         # Active cloud IDs
         self.cloud_ids = []
         # Kết nối signal/slot từ dialog
+
         self._connect_signals()
-        
+       
 
         # Show maximize size
 
@@ -66,17 +69,28 @@ class ReportCreatorController(QObject):
         if hasattr(ui, "txtShotcreteApplied"):
             ui.txtShotcreteApplied.textChanged.connect(self.on_shotcrete_applied_changed)
 
-        if hasattr(ui, "btnAddText"):
-           ui.btnAddText.clicked.connect(self.on_add_annotation)
+        # if hasattr(ui, 'btnAnnotationTool'):
+        #     ui.btnAnnotationTool.clicked.connect(self.on_annotation_toolbar)
 
-        if hasattr(ui, 'btnAnnotationTool'):
-            ui.btnAnnotationTool.clicked.connect(self.on_annotation_toolbar)
+
         
-        if hasattr(ui, 'btnShapeTool'):
-            ui.btnShapeTool.clicked.connect(self.on_shape_toolbar)
-           
-      
-        
+
+
+        # if hasattr(ui, 'btnAddLine'):
+        #     ui.btnAddLine.clicked.connect(self.annotation_controller.on_request_add_line)
+        # if hasattr(ui, 'btnAddText'):
+        #     ui.btnAddText.clicked.connect(self.annotation_controller.on_request_add_text)
+        # if hasattr(ui, 'btnMove'):
+        #     ui.btnMove.clicked.connect(self.annotation_controller.on_request_move)
+        # if hasattr(ui, 'btnEdit'):
+        #     ui.btnEdit.clicked.connect(self.annotation_controller.on_edit)
+        # if hasattr(ui, 'btnDelete'):
+        #     ui.btnDelete.clicked.connect(self.annotation_controller.on_delete)
+        # if hasattr(ui, 'cbbSize'):
+        #     ui.cbbSize.currentTextChanged.connect(lambda size: self.annotation_controller.on_size_changed(int(size)))
+        # if hasattr(ui, 'cbbFontSize'):
+        #     ui.cbbFontSize.currentTextChanged.connect(lambda size: self.annotation_controller.on_font_size_changed(int(size)))    
+
 
     def show(self,**kwargs):
         """Hiển thị dialog tạo report"""
@@ -140,6 +154,7 @@ class ReportCreatorController(QObject):
             tolerance=report_info['tolerance']
         )
 
+        # image = self.cloud_view.capture_current_view()
         image = self.cloud_view.capture_current_view()
         image_base64 = image_array_to_base64_png(image)
         self.report_generator.set_tunnel_view_image(image_base64)
@@ -258,18 +273,9 @@ class ReportCreatorController(QObject):
         self.report_dialog.ui.btnExport.setEnabled(False)
 
 
-    def on_add_annotation(self):
-        
-        self.shape_controller.request_add_shape()
-        # self.annotation_controller.request_add_annotation()
-
-
     def on_annotation_toolbar(self):
         self.annotation_controller.show_annotation_toolbar()
 
-
-    def on_shape_toolbar(self):
-        self.shape_controller.show_shape_toolbar()
 
 
 #Sample job_info.json content:

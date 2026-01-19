@@ -106,6 +106,10 @@ class OverlayFactory:
         mapper = vtk.vtkPolyDataMapper2D()
         mapper.SetInputData(pd)
 
+        coord = vtk.vtkCoordinate()
+        coord.SetCoordinateSystemToDisplay()   
+        mapper.SetTransformCoordinate(coord)
+
         actor = vtk.vtkActor2D()
         actor.SetMapper(mapper)
 

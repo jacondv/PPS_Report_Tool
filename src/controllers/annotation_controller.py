@@ -1,3 +1,5 @@
+from PySide6.QtCore import QObject, Signal
+
 from typing import Optional
 from itertools import chain
 
@@ -14,7 +16,9 @@ from controllers.tools.tool_edit_line import ToolEditLine
 from controllers.base_controller import BaseController
 
 class AnnotationController(BaseController):
-    def __init__(self, cloud_view, shape_model):
+    toolChangeSignal = Signal()
+
+    def __init__(self, cloud_view, shape_model,ann_toolbar_view):
         """
         cloud_view: CloudView (render annotation)
         """
@@ -27,8 +31,10 @@ class AnnotationController(BaseController):
         self.ann_line_width = 1
         self.ann_font_size = 11
 
+        self.ann_toolbar = ann_toolbar_view
 
-        self.ann_toolbar = AnnotationToolbarView(self.view.placeholder_widget)
+
+        # self.ann_toolbar = AnnotationToolbarView(self.view.placeholder_widget)
         self.ann_toolbar.addLine.connect(self.on_request_add_line)
         self.ann_toolbar.addText.connect(self.on_request_add_text)
         self.ann_toolbar.move.connect(self.on_request_move)

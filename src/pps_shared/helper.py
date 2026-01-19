@@ -28,7 +28,8 @@ def map_distances_to_colors(
             # Gradient red (1,0,0) → green (0,1,0)
             # t = d / low if low > 0 else 0
             # colors[i] = (1 - t, t, 0)
-            colors[i] = (0.5, 0, 0)
+            # colors[i] = (0.5, 0, 0)
+             colors[i] = (1, 0, 0)
 
         elif d <= high:
             # Pure green

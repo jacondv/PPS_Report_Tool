@@ -5,10 +5,11 @@ from PySide6.QtWidgets import QDialog
 from PySide6.QtCore import QDate
 
 from views.ui.report_creator_dialog_ui import Ui_ReportCreate  # đường dẫn tới file UI của bạn
+from views.annotation_toolbar_view_fix import AnnotationToolbarView
+
 from views.cloud_view import CloudView
 
 from utils.image_utils import image_to_pixmap
-
 
 
 
@@ -25,9 +26,10 @@ class ReportCreateDialog(QDialog):
         self.ui = Ui_ReportCreate()
         self.ui.setupUi(self)
 
-        self.ui.treeJobData.hide()
-        # self.ui.btnOpen.hide()
-
+        self.ann_toolbar = AnnotationToolbarView(parent=self.ui.widget_toolbar)
+        layout = self.ui.widget_toolbar.layout()
+        layout.addWidget(self.ann_toolbar)
+        # self.ann_toolbar.show()
         # ---------------- Views ----------------
 
         self.cloud_view = CloudView(self.ui.cloud_viewer)
