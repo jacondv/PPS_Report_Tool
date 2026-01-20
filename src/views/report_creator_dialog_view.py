@@ -33,7 +33,7 @@ class ReportCreateDialog(QDialog):
         # ---------------- Views ----------------
 
         self.cloud_view = CloudView(self.ui.cloud_viewer)
-
+        self.parent_cloud_view = CloudView(self.ui.cloud_over_viewer)
 
         # Tùy chỉnh thêm nếu cần
         self.setWindowTitle("Create Report")
@@ -102,13 +102,14 @@ class ReportCreateDialog(QDialog):
             "shotcrete_volume": _safe_float(self.ui.txtShotcreteVolume.text()),
             "applied_thickness": _safe_int(self.ui.txtShotcreteApplied.text()),
             "tolerance": _safe_int(self.ui.txtTolerance.text()),
-            "average_thickness": _safe_float(self.ui.txtAverageThickness.text())
+            "average_thickness": _safe_float(self.ui.txtAverageThickness.text()),
+            'surface_area': _safe_float(self.ui.txtSurfaceArea.text())
         }
         return report_dict
 
     # Set parameters for use in report
     def set_report_info(self, site_name: str=None, job_name: str=None, date: datetime.date=None, time: datetime.time=None, 
-                        shotcrete_volume: float=None, applied_thickness: int=None, tolerance: int=None, average_thickness: float=None):
+                        shotcrete_volume: float=None, applied_thickness: int=None, tolerance: int=None, average_thickness: float=None,surface_area:float=None):
         """
         Thiết lập thông tin báo cáo hiển thị trên dialog
         """
@@ -121,6 +122,7 @@ class ReportCreateDialog(QDialog):
         self.set_shotcrete_applied(applied_thickness)
         self.set_tolerance(tolerance)
         self.set_average_thickness(average_thickness)
+        self.set_surface_area(surface_area)
 
     
     def set_site_name(self, site_name: str):
@@ -171,6 +173,14 @@ class ReportCreateDialog(QDialog):
             self.ui.txtAverageThickness.setText("")
             return
         self.ui.txtAverageThickness.setText(f"{thickness:.0f}")
+
+
+    def set_surface_area(self, area:float):
+        if area is None:
+            self.ui.txtSurfaceArea.setText("")
+            return
+        self.ui.txtSurfaceArea.setText(f"{area:.0f}")
+            
 
     
     def show_image(self, image):

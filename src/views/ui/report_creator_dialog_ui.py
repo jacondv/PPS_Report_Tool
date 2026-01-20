@@ -15,17 +15,17 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QDateEdit, QDialog, QFrame,
-    QGroupBox, QHBoxLayout, QLabel, QLineEdit,
-    QSizePolicy, QSpacerItem, QSplitter, QTimeEdit,
-    QToolButton, QVBoxLayout, QWidget)
+from PySide6.QtWidgets import (QApplication, QCheckBox, QDateEdit, QDialog,
+    QFrame, QGroupBox, QHBoxLayout, QLabel,
+    QLineEdit, QSizePolicy, QSpacerItem, QSplitter,
+    QTimeEdit, QToolButton, QVBoxLayout, QWidget)
 from . import resource_rc
 
 class Ui_ReportCreate(object):
     def setupUi(self, ReportCreate):
         if not ReportCreate.objectName():
             ReportCreate.setObjectName(u"ReportCreate")
-        ReportCreate.resize(1011, 779)
+        ReportCreate.resize(1011, 782)
         ReportCreate.setStyleSheet(u"/* =========================\n"
 "   GLOBAL\n"
 "========================= */\n"
@@ -433,10 +433,10 @@ class Ui_ReportCreate(object):
 
         self.horizontalLayout_14.addWidget(self.label_13)
 
-        self.txtShotcreteApplied_2 = QLineEdit(self.widget_16)
-        self.txtShotcreteApplied_2.setObjectName(u"txtShotcreteApplied_2")
+        self.txtSurfaceArea = QLineEdit(self.widget_16)
+        self.txtSurfaceArea.setObjectName(u"txtSurfaceArea")
 
-        self.horizontalLayout_14.addWidget(self.txtShotcreteApplied_2)
+        self.horizontalLayout_14.addWidget(self.txtSurfaceArea)
 
         self.label_14 = QLabel(self.widget_16)
         self.label_14.setObjectName(u"label_14")
@@ -547,6 +547,11 @@ class Ui_ReportCreate(object):
         self.horizontalLayout_10.setSpacing(2)
         self.horizontalLayout_10.setObjectName(u"horizontalLayout_10")
         self.horizontalLayout_10.setContentsMargins(0, 0, 20, 0)
+        self.chkAddOverviewImage = QCheckBox(self.widget_toolbar)
+        self.chkAddOverviewImage.setObjectName(u"chkAddOverviewImage")
+
+        self.horizontalLayout_10.addWidget(self.chkAddOverviewImage)
+
         self.horizontalSpacer_2 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
         self.horizontalLayout_10.addItem(self.horizontalSpacer_2)
@@ -563,10 +568,9 @@ class Ui_ReportCreate(object):
         self.splitter_2.setOrientation(Qt.Horizontal)
         self.cloud_over_viewer = QWidget(self.splitter_2)
         self.cloud_over_viewer.setObjectName(u"cloud_over_viewer")
+        sizePolicy2.setHeightForWidth(self.cloud_over_viewer.sizePolicy().hasHeightForWidth())
+        self.cloud_over_viewer.setSizePolicy(sizePolicy2)
         self.cloud_over_viewer.setMaximumSize(QSize(500, 16777215))
-        self.verticalLayout_5 = QVBoxLayout(self.cloud_over_viewer)
-        self.verticalLayout_5.setObjectName(u"verticalLayout_5")
-        self.verticalLayout_5.setContentsMargins(0, 0, 0, 0)
         self.splitter_2.addWidget(self.cloud_over_viewer)
         self.widget_17 = QWidget(self.splitter_2)
         self.widget_17.setObjectName(u"widget_17")
@@ -655,6 +659,7 @@ class Ui_ReportCreate(object):
         self.btnUpdate.setText(QCoreApplication.translate("ReportCreate", u"Apply", None))
         self.btnExport.setText(QCoreApplication.translate("ReportCreate", u"Export", None))
         self.groupBox_2.setTitle(QCoreApplication.translate("ReportCreate", u"TUNNEL VIEW", None))
+        self.chkAddOverviewImage.setText(QCoreApplication.translate("ReportCreate", u"Show in report", None))
         self.groupBox_3.setTitle(QCoreApplication.translate("ReportCreate", u"SHOTCRETE THICKNESS DISTRIBUTION", None))
         self.chart_viewer.setText("")
     # retranslateUi

@@ -48,9 +48,11 @@ class ReportData:
         self.logo = None
         self.tunnel_view = None
         self.thickness_chart = None
+        self.tunnel_over_view = None
+        self.surface_area = None
 
     @classmethod
-    def from_inputs(cls, site_name, job_name, applied_thickness, tolerance, avg_thickness, shotcrete_volume, logo,tunnel_view,thickness_chart, **kwargs):
+    def from_inputs(cls, site_name, job_name, applied_thickness, tolerance, avg_thickness, shotcrete_volume, logo,tunnel_view,thickness_chart,tunnel_over_view,surface_area, **kwargs):
         obj = cls()
         obj.site_name = site_name
         obj.job_name = job_name
@@ -58,6 +60,7 @@ class ReportData:
         obj.tolerance = tolerance
         obj.avg_thickness = avg_thickness
         obj.shotcrete_volume = shotcrete_volume
+        obj.surface_area = surface_area
 
         # Optional
         obj.date = kwargs.get("date")
@@ -67,6 +70,8 @@ class ReportData:
         obj.logo = cls._process_image(logo)
         obj.tunnel_view = cls._process_image(tunnel_view)
         obj.thickness_chart = cls._process_image(thickness_chart)
+        obj.tunnel_over_view = cls._process_image(tunnel_over_view)
+        
     
         return obj
 
@@ -116,12 +121,14 @@ class ReportData:
             "tolerance": self.tolerance,
             "job_name": self.job_name,
             "avg_thickness": self.avg_thickness,
+            'surface_area': self.surface_area,
             "date": self.date,
             "time": self.time,
             "shotcrete_volume": self.shotcrete_volume,
             "tunnel_view_uri": self.tunnel_view,
+            "tunnel_over_view_uri": self.tunnel_over_view,
             "thickness_chart_uri": self.thickness_chart,
-            "create_date": datetime.now().strftime("%d/%m/%Y %H:%M")
+            "create_date": datetime.now().strftime("%d/%m/%Y %H:%M"),
         }
         return data
 

@@ -19,6 +19,7 @@ class ReportGenerator:
         self.time = datetime.now().strftime("%H:%M:%S")
         self.create_date = datetime.now().strftime("%d/%m/%Y")
         self.tunnel_view_image = None
+        self.tunnel_over_view_img = None
         # pdfkit config
         self.pdf_config = pdfkit.configuration(
             wkhtmltopdf=str(WKHTMLTOPDF_PATH_EXE)
@@ -36,6 +37,9 @@ class ReportGenerator:
 
     def set_tunnel_view_image(self, image):
         self.tunnel_view_image = image
+
+    def set_tunnel_over_view_image(self, image):
+        self.tunnel_over_view_img = image
 
     def get_info(self) -> dict:
         return {
@@ -158,9 +162,16 @@ class ReportGenerator:
             tunnel_view_img = self.tunnel_view_image
         else:
             tunnel_view_img = processor.export_tunnel_view_image(out_path=None)
+
+        if self.tunnel_over_view_img is not None:
+            tunnel_over_view_img = self.tunnel_over_view_img
+        else:
+            #TODO need to change
+            tunnel_over_view_img = None
         
         shotcrete_volume = round(processor.volume(),3)
         avg_thickness = round(processor.avg_thickness(),0)
+        surface_area = round(processor.area(),0)
         
 
         data = ReportData.from_inputs(
@@ -169,9 +180,11 @@ class ReportGenerator:
             applied_thickness=applied_thickness,
             tolerance=tolerance,
             avg_thickness=avg_thickness,
+            surface_area=surface_area,
             shotcrete_volume=shotcrete_volume,
             logo=LOGO_REPORT_FILE_PATH,
             tunnel_view=tunnel_view_img,
+            tunnel_over_view=tunnel_over_view_img,
             thickness_chart=thickness_chart_img,
             date=date,
             time=time

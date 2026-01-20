@@ -64,3 +64,55 @@ def assign_colors(tcloud, clip_max=150, highlight_range=(20, 40)):
     # Update tensor cloud colors
     tcloud.point['colors'] = o3d.core.Tensor(colors.astype(np.float32))
     return tcloud
+
+
+
+
+def surface_area(
+    pcd,
+    radii=(0.05, 0.07, 0.1),
+    estimate_normals=True
+) -> float:
+    """
+    Tính diện tích bề mặt point cloud bằng Ball Pivoting Algorithm (BPA)
+
+    Parameters
+    ----------
+    pcd : open3d.geometry.PointCloud
+        Point cloud đầu vào
+    radii : tuple
+        Danh sách bán kính ball (nên tăng dần)
+    estimate_normals : bool
+        Có tự estimate normals hay không
+
+    Returns
+    -------
+    area : float
+        Diện tích bề mặt (đơn vị theo cloud)
+    """
+    import open3d as o3d
+
+
+    if isinstance(pcd, o3d.t.geometry.PointCloud):
+        pcd = pcd.to_legacy()
+    
+
+    pcd = pcd.voxel_down_sample(voxel_size=min(radii) / 2)
+
+    if estimate_normals:
+        pcd.estimate_normals(
+            search_param=o3d.geometry.KDTreeSearchParamHybrid(
+                radius=max(radii) * 2,
+                max_nn=30
+            )
+        )
+        pcd.orient_normals_consistent_tangent_plane(50)
+
+    mesh = o3d.geometry.TriangleMesh.create_from_point_cloud_ball_pivoting(
+        pcd,
+        o3d.utility.DoubleVector(radii)
+    )
+
+    # Tính diện tích
+    area = mesh.get_surface_area()
+    return area

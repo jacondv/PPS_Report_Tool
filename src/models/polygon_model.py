@@ -75,6 +75,11 @@ class PolygonModel:
             self.points = None
 
 
+    def clear_points(self):
+        if self.points:
+            self.points = []
+
+
     def close_polygon(self):
         """Đóng polygon: thêm điểm đầu vào cuối nếu chưa có"""
         if not self.closed and len(self.points) >= 3:
@@ -82,11 +87,14 @@ class PolygonModel:
                 self.points = np.vstack([self.points, self.points[0]])  # thêm điểm đầu vào cuối
             self.closed = True
 
+
     def is_closed(self) -> bool:
         return self.closed
 
+
     def get_points(self) -> np.ndarray:
         return self.points
+
 
     def num_points(self)->int:
         if self.points is None:

@@ -1,5 +1,6 @@
 
 import numpy as np
+from pps_shared.helper import surface_area
 
 class PLYProcessor:
     def __init__(self):
@@ -77,7 +78,10 @@ class PLYProcessor:
         print(f"average_thickness is {average_thickness}mm")
 
         return average_thickness
-            
+
+    def area(self):
+        area = surface_area(self.pcd, radii=(0.1, 0.15))
+        return area
 
     def volume(self):
         """

@@ -159,13 +159,6 @@ class CloudView(QWidget):
         return super().eventFilter(obj, event)
 
 
-    def hostWidget(self) -> QWidget:
-        """
-        Widget container / placeholder chứa CloudView
-        """
-        return self.placeholder_widget
-
-
     # =========================
     # Left click / drag / double click handlers
     # =========================
@@ -242,7 +235,6 @@ class CloudView(QWidget):
             scale=1)
 
 
-
     def enable(self, value=True):
         """
         Bật/Tắt camera interaction trên self.plotter_widget
@@ -273,6 +265,7 @@ class CloudView(QWidget):
         else:
             self.plotter_widget.clear()
 
+
     def _auto_set_camera(self, points: np.ndarray):
         plotter = self.plotter_widget
 
@@ -284,7 +277,7 @@ class CloudView(QWidget):
         flatness = e[0] / (e[1] + 1e-6)
 
         if flatness >= 0.45:
-            plotter.reset_camera()
+            # plotter.reset_camera()
             return  # KHÔNG xoay camera
 
 
@@ -339,8 +332,15 @@ class CloudView(QWidget):
         ]
         
 
-    def display_cloud(self, points: np.ndarray, colors=None, normals: np.ndarray = None, point_size: int = 2, cloud_id: str = None, reset_camera=True):
+    def display_cloud(self, points: np.ndarray, colors=None, normals: np.ndarray = None, point_size: int = 2, cloud_id: str = None, reset_camera=True, **kwargs):
+        """
+        Docstring for display_cloud
+        
+        :param wkargs: auto_rotate_camera=False -  Automatically rotate the cloud to provide users with a better viewing experience.
+        """
+        
         point_cloud = pv.PolyData(points)
+        auto_rotate_camera = kwargs.get("auto_rotate_camera", False)
 
         if isinstance(colors, str):
             color = np.array(mcolors.to_rgb(colors), dtype=np.float32)
@@ -372,11 +372,12 @@ class CloudView(QWidget):
             self._cloud_actors[cloud_id] = actor
 
         if reset_camera:
-            # self.plotter_widget.reset_camera()
-            self._auto_set_camera(points)
-        else:
-            # self.plotter_widget.render()
-            self.plotter.render()
+            self.plotter_widget.reset_camera()
+
+        if auto_rotate_camera:
+                self._auto_set_camera(points)
+                
+        self.plotter.render()
 
 
     def cleanup(self):
@@ -388,24 +389,28 @@ class CloudView(QWidget):
     # =========================
     # Anotation
     # =========================
-    # ---------------- Annotation Text  ----------------
 
+    # ---------------- Annotation Text  ----------------
 
     def remove_annotation(self, ann_id: str):
         actor = self._annotation_actors.pop(ann_id, None)
         if actor:
             self.plotter_widget.remove_actor(actor)
 
-
-    def set_annotation_visible(self, ann_id:str, visible=True):
-        actor = self._annotation_actors.get(ann_id)
-        if actor:
-            actor.SetVisibility(visible)
-            # self.plotter_widget.render()
-            self.plotter.render()
-            
-
     # ---------------- Annotation Shape----------------
+    
+    def _color_to_rgb(self, color_name: str):
+        """Chuyển tên màu sang RGB tuple"""
+        colors = {
+            "red": (1.0, 0.0, 0.0),
+            "yellow": (1.0, 1.0, 0.0),
+            "green": (0.0, 1.0, 0.0),
+            "blue": (0.0, 0.0, 1.0),
+            "white": (1.0, 1.0, 1.0),
+        }
+        return colors.get(color_name.lower(), (1.0, 1.0, 1.0))
+
+    
     def draw_text(
         self,
         name: str,
@@ -444,18 +449,6 @@ class CloudView(QWidget):
 
         # self.plotter_widget.render()
         self.plotter.render()
-
-
-    def _color_to_rgb(self, color_name: str):
-        """Chuyển tên màu sang RGB tuple"""
-        colors = {
-            "red": (1.0, 0.0, 0.0),
-            "yellow": (1.0, 1.0, 0.0),
-            "green": (0.0, 1.0, 0.0),
-            "blue": (0.0, 0.0, 1.0),
-            "white": (1.0, 1.0, 1.0),
-        }
-        return colors.get(color_name.lower(), (1.0, 1.0, 1.0))
 
 
     def draw_line(self, name, points_2d, **kwargs):
@@ -505,31 +498,17 @@ class CloudView(QWidget):
             self.overlay_renderer.RemoveActor(self._text_actors[shape_id])
 
 
-    def set_shape_actor_visible(self, shape_id:str, visible=True):
-        actor = self._shape_actors.get(shape_id)
-        if actor:
-            actor.SetVisibility(visible)
-            # self.plotter_widget.render()
-            self.plotter.render()
-
     # =========================
     # Polygon overlay
     # =========================
-    def start_polygon(self):
-        """Chỉ reset overlay, không lưu points"""
-        if self.polygon_actor:
-            self.plotter_widget.remove_actor(self.polygon_actor)
-            self.polygon_actor = None
-        
-        self.is_drawing_polygon = True
-        self.mode = self.is_drawing_polygon
-
-
     def draw_polygon(self, points):
         """Vẽ polygon (line + dot) bằng 1 mesh duy nhất."""
         if hasattr(self, 'polygon_actor') and self.polygon_actor:
             self.plotter_widget.remove_actor(self.polygon_actor)
             self.polygon_actor = None
+
+        if points is None:
+            return
 
         n = len(points)
         if n == 0:
@@ -546,12 +525,6 @@ class CloudView(QWidget):
             point_size=6,
             render_points_as_spheres=True
         )
-
-
-    def finish_polygon(self):
-        # Finish chuyển sang view mode, reset self.is_drawing_polygon
-        self.is_drawing_polygon = False
-        self.mode = self.is_drawing_polygon
 
 
     def get_pos(self):

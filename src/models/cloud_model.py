@@ -19,6 +19,8 @@ class CloudModel:
         self.points: Optional[np.ndarray] = None   # Nx3 numpy
         self.name=None
         self.loaded: bool = False
+        self._polygon_indicate = None
+        self._polygon_points = None
 
     # ==================================================
     # Load / access
@@ -43,9 +45,23 @@ class CloudModel:
     def get_cloud(self):
         return self._cloud
 
+    def get_parent_id(self):
+        return self.parent_id
+
     def is_loaded(self) -> bool:
         return self.loaded
 
+    def set_polygon_points(self, points):
+        self._polygon_points = points
+    
+    def get_polygon_points(self):
+        return self._polygon_points
+
+    def set_polygon_indicate(self,indicate):
+        self._polygon_indicate = indicate
+
+    def get_polygon_indicate(self):
+        return self._polygon_indicate
 
     def create_segment(self, indices: list[int], name: Optional[str] = None) -> "CloudModel":
         """
@@ -78,7 +94,6 @@ class CloudModel:
 
         return seg_cloud
 
-
     def select_by_polygon(self, polygon_points, crop_direction=np.array([1, 0, 0]),base_indices=None):
         """
         Chọn các điểm nằm bên trong polygon (chiếu lên plane vuông góc với crop_direction)
@@ -86,6 +101,10 @@ class CloudModel:
         polygon_points: Nx3 numpy array hoặc list
         crop_direction: vector 3D xác định hướng cắt (mặc định [0,1,0])
         """
+
+        if polygon_points is None:
+            return []
+        
         self.polygon_points = np.array(polygon_points, dtype=float)
         if len(self.polygon_points) < 3:
             print(f"Cannot segment: polygon too few points ({len(self.polygon_points)} < 3)")

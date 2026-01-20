@@ -140,12 +140,20 @@
         <tr>
             <th>Time</th>
             <td>{{ data.time }}</td>
-            <th></th>
-            <td></td>
+            <th>Surface Area</th>
+            <td>{{ data.surface_area }} (m²)</td>
         </tr>
     </table>
 
     <!-- SECTION 1: TUNNEL VIEW -->
+    {% if data.tunnel_over_view_uri %}
+    <div class="section">
+        <div class="section-title">TUNNEL OVER VIEW</div>
+        <div class="image-container">
+            <img src="{{ data.tunnel_over_view_uri }}" alt="Tunnel Over View">
+        </div>
+    </div>
+    {% endif %}
     <div class="section">
         <div class="section-title">TUNNEL VIEW</div>
         <div class="image-container">

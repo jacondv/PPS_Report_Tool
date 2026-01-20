@@ -34,9 +34,16 @@ class ReportCreatorController(QObject):
         self.cloud_service = cloud_service
         self.job_service = job_service
         self.cloud_view = self.report_dialog.cloud_view
+        self.parent_cloud_view =  self.report_dialog.parent_cloud_view
+
+        #------------------
+        self._show_overview_image = None
+        
+
         self.ann_toolbar = self.report_dialog.ann_toolbar
 
         self.cloud_controller = CloudController(self.cloud_view, self.cloud_service, self.job_service)
+        
 
         self.shape_model = Shape2DModel()
         self.annotation_controller = AnnotationController(self.cloud_view, self.shape_model, self.ann_toolbar)
@@ -69,6 +76,10 @@ class ReportCreatorController(QObject):
         if hasattr(ui, "txtShotcreteApplied"):
             ui.txtShotcreteApplied.textChanged.connect(self.on_shotcrete_applied_changed)
 
+        if hasattr(ui, 'chkAddOverviewImage'):
+            ui.chkAddOverviewImage.toggled.connect(self.on_add_overview_image_changed)
+            self._show_overview_image = ui.chkAddOverviewImage.isChecked()
+
         # if hasattr(ui, 'btnAnnotationTool'):
         #     ui.btnAnnotationTool.clicked.connect(self.on_annotation_toolbar)
 
@@ -100,10 +111,26 @@ class ReportCreatorController(QObject):
 
             # Check if the cloud format is correct.
             try:
-                cloud = self.job_service.get_cloud_model(self.cloud_ids[0])
-                cloud = cloud.get_cloud()
+                cloud_model = self.job_service.get_cloud_model(self.cloud_ids[0])
+                cloud = cloud_model.get_cloud()
                 has_distances = "distances" in cloud.point
-            except:
+
+                # Show the original cloud
+                parent_id = cloud_model.get_parent_id()
+                if parent_id is not None:
+                    parent_view = self.report_dialog.parent_cloud_view
+                    parent_cloud_controller = CloudController(parent_view, self.cloud_service, self.job_service)
+                    parent_cloud_model = self.job_service.get_cloud_model(parent_id)
+                    parent_cloud_controller.cleanup()
+                    parent_cloud_controller.render_cloud(parent_cloud_model)
+
+                    _indicate = cloud_model.get_polygon_indicate()
+                    points = parent_cloud_model.points[_indicate]
+                    parent_view.display_cloud(points=points, colors="pink", point_size=3, cloud_id="segment_preview", reset_camera=False)
+
+                            
+            except Exception as e:
+                print(e)
                 has_distances = False
 
 
@@ -117,13 +144,12 @@ class ReportCreatorController(QObject):
                 
             self.report_dialog.show()
             self.set_report_info()
-            self.upadte()
+            self.upadte(auto_rotate_camera=True)
         else:
             self.cloud_ids = []
-
+       
         
-        
-    def display_cloud(self, cloud_id: str | list[str]):
+    def display_cloud(self, cloud_id: str | list[str], **kwargs):
             print("Active cloud IDs for report:", cloud_id)
             """Hiển thị cloud đã chọn trong CloudView của dialog"""
 
@@ -134,9 +160,8 @@ class ReportCreatorController(QObject):
                 cloud_model = self.job_service.get_cloud_model(cid)
                 if cloud_model:
                     self.cloud_controller.cleanup()
-                    self.cloud_controller.render_cloud(cloud_model)
+                    self.cloud_controller.render_cloud(cloud_model,**kwargs)
 
-            
 
     def crete_report(self):
         """Tạo report PDF từ các cloud đã chọn"""
@@ -159,9 +184,19 @@ class ReportCreatorController(QObject):
         image_base64 = image_array_to_base64_png(image)
         self.report_generator.set_tunnel_view_image(image_base64)
 
+        # image over view --------------------------
+        if self._show_overview_image:
+            image_over_view = self.parent_cloud_view.capture_current_view()
+            image_over_view_base64 = image_array_to_base64_png(image_over_view)
+        else:
+            image_over_view_base64 = None
+        self.report_generator.set_tunnel_over_view_image(image_over_view_base64)
+        #----------------------------------------------------
+
         cloud_id = self.cloud_ids[0]
         cloud_model = self.job_service.get_cloud_model(cloud_id)
         cloud = cloud_model.get_cloud()
+
 
         # --- File Save Dialog ---
         options = QFileDialog.Options()
@@ -219,7 +254,9 @@ class ReportCreatorController(QObject):
         )
 
 
-    def upadte(self):
+    def upadte(self,**kwargs):
+
+        from pps_shared.helper import surface_area
 
         report_info = self.report_dialog.get_report_info()
 
@@ -234,8 +271,9 @@ class ReportCreatorController(QObject):
 
         cloud = assign_colors(cloud,highlight_range=(_low, _high))
         
-
         cloud_model.set_cloud(cloud)
+
+        
 
         # self.report_generator = ReportGenerator()
         self.report_generator.set_info(
@@ -250,12 +288,14 @@ class ReportCreatorController(QObject):
         shotcrete_volume = data.shotcrete_volume
         avg_thickness = data.avg_thickness
         thickness_chart = data.thickness_chart
+        area = data.surface_area
 
         # Update to texbox
         self.report_dialog.set_average_thickness(avg_thickness)
-        self.report_dialog.set_shotcrete_volume(shotcrete_volume)     
+        self.report_dialog.set_shotcrete_volume(shotcrete_volume)  
+        self.report_dialog.set_surface_area(area)   
 
-        self.display_cloud(cloud_id)
+        self.display_cloud(cloud_id, **kwargs)
         self.report_dialog.show_image(thickness_chart)
 
 
@@ -272,6 +312,9 @@ class ReportCreatorController(QObject):
     def on_shotcrete_applied_changed(self):
         self.report_dialog.ui.btnExport.setEnabled(False)
 
+
+    def on_add_overview_image_changed(self,checked):
+        self._show_overview_image = checked
 
     def on_annotation_toolbar(self):
         self.annotation_controller.show_annotation_toolbar()

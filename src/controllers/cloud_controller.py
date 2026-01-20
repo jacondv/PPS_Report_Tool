@@ -6,6 +6,8 @@ from views.segment_toolbar_view import SegmentToolbarView
 from models.polygon_model import PolygonModel
 from controllers.base_controller import BaseController
 
+from controllers.tools.tool_draw_polygon import PolygonDrawer
+
 class CloudController(QObject, BaseController):
 
     # segmentCreated = Signal(object)
@@ -17,13 +19,17 @@ class CloudController(QObject, BaseController):
         self.job_service = job_service
         self.cloud_model = None  # CloudModel gắn vào Controller
 
-
+        self.crop_direction = None
+        
         # polygon/segment workflow
-        self.polygon_model: PolygonModel | None = None
         self._segment_indices = None
 
+        self.current_tool =  None
+        self.segment_tool = PolygonDrawer(view=self.cloud_view)
+        self.segment_tool.toolCompleted.connect(self.on_draw_polygon_completed)
 
-        # Segment toolbar
+
+        # # Segment toolbar
         self.segment_toolbar = SegmentToolbarView(self.cloud_view.placeholder_widget)
         self.segment_toolbar.hide()
         self.segment_toolbar.segment_in.connect(lambda: self.preview_segment("in"))
@@ -32,15 +38,15 @@ class CloudController(QObject, BaseController):
         self.segment_toolbar.clear.connect(self.clear_polygon)
 
 
-        # Connect View callbacks
-        # self.cloud_view.on_left_click = self.add_polygon_point
-        # self.cloud_view.on_left_click = self.on_left_click
-        self.cloud_view.leftClicked3D.connect(self.on_left_click)
-        self.cloud_view.on_right_click = self.finish_draw_polygon
+        # # subscribe trực tiếp vào EventBus
 
-        # subscribe trực tiếp vào EventBus
+        ############################################
+
+        self.cloud_view.leftClicked3D.connect(self.on_3d_left_click)
+        self.cloud_view.rightClicked3D.connect(self.on_3d_right_click)
+
+        ############################################
         event_bus.cloud_visibility_changed.connect(self.on_cloud_visibility_changed)
-
 
 
     # ==================================================
@@ -56,17 +62,18 @@ class CloudController(QObject, BaseController):
             self.set_cloud_model(cloud_model)
             self.render_cloud(cloud_model)
 
-    def on_left_click(self, pos):
-        """
-        Xử lý sự kiện click trái từ CloudView
-        :param pos: (x, y, z) trong hệ tọa độ view
-        :param mode: ViewMode hiện tại
-        """
-        self.add_polygon_point(pos)
+    # def on_left_click(self, pos):
+    #     """
+    #     Xử lý sự kiện click trái từ CloudView
+    #     :param pos: (x, y, z) trong hệ tọa độ view
+    #     :param mode: ViewMode hiện tại
+    #     """
+    #     self.add_polygon_point(pos)
 
     # ==================================================
     # Cloud loading / rendering
     # ==================================================
+
     def set_cloud_model(self, cloud_model):
         """Set CloudModel cho controller"""
         self.cloud_model = cloud_model
@@ -78,7 +85,7 @@ class CloudController(QObject, BaseController):
             cloud_model.set_cloud(raw_cloud)
         return cloud_model
 
-    def render_cloud(self, cloud_model=None):
+    def render_cloud(self, cloud_model=None,**kwargs):
         """Hiển thị cloud lên View"""
         
         # Kiểm tra tham số
@@ -99,7 +106,8 @@ class CloudController(QObject, BaseController):
             points=data.get('points'),
             colors=data.get('colors'),
             normals=data.get('normals'),
-            cloud_id=cloud_model.id
+            cloud_id=cloud_model.id,
+            **kwargs
         )
     
     def clear_cloud(self, cloud_id=None):
@@ -107,59 +115,67 @@ class CloudController(QObject, BaseController):
         self.cloud_view.clear_cloud(cloud_id)
 
 
-    # ==================================================
-    # Polygon / Segment workflow
-    # ==================================================
-    def start_segment(self):
-        """Bắt đầu vẽ polygon"""
-        # if not self.cloud_model:
-        #     return
+########################################
 
+
+    def set_tool(self, tool):
+
+        # 1. Deactivate tool hiện tại nếu có
+        if self.current_tool:
+            self.current_tool = None
+
+        if tool is None:
+            self.cloud_view.enable(True)
+            return
+
+        # 2. Set tool mới
+        self.current_tool = tool
+        if self.current_tool:
+            self.current_tool.on_activate()
+            
+            # Disable view nếu tool yêu cầu
+            if getattr(self.current_tool, "requires_disable_view", False):
+                self.cloud_view.enable(False)
+            else:
+                self.cloud_view.enable(True)
+
+        
+    def start_segment(self):
         self.segment_toolbar.show()
         self.segment_toolbar.disable()
-
-        # Reset polygon trong Model
-        self.polygon_model = PolygonModel()
-
-        # Bắt đầu vẽ trong View
-        self.cloud_view.start_polygon()
-        # self.polygon_model.crop_direction = self.cloud_view.get_current_front()
-        self._segment_indices = []
-
-
-    def add_polygon_point(self, pos):
-        """Thêm điểm polygon từ click"""
-        if not self.polygon_model:
-            return
+        self.set_tool(self.segment_tool)
         
-        if self.polygon_model.num_points() == 0: # Is the firt point to adding
-            self.polygon_model.crop_direction = self.cloud_view.get_current_front()
 
-        self.polygon_model.add_point(pos)
-        self.cloud_view.draw_polygon(self.polygon_model.get_points())
-
-
-    def finish_draw_polygon(self):
-        """Kết thúc polygon, tính segment"""
-        self.cloud_view.finish_polygon()
-        if not self.polygon_model:
-            return
-        self.polygon_model.finish_polygon()
-        self.cloud_view.draw_polygon(self.polygon_model.get_points())
-
-        # # Lưu polygon vào CloudModel (nếu cần)
-        # self.cloud_model.set_polygon(self.polygon_model)
+    def on_draw_polygon_completed(self, polygon):
+        self.set_tool(None)
+        self.current_polygon = polygon
 
         # Tính indices segment
         self._segment_indices = self.cloud_model.select_by_polygon(
-            self.polygon_model.get_points(),
-            crop_direction=self.polygon_model.crop_direction
-            # crop_direction=np.array([0, 1, 0])
+            polygon.get_points(),
+            crop_direction=self.crop_direction
         )
+        self.segment_toolbar.enable(names=["segmentin", "clear"])
+        print("on_segment_completed")
 
-        # Enable toolbar
-        if self._segment_indices is not None and len(self._segment_indices) > 0:
-            self.segment_toolbar.enable(names=["segmentin", "clear"])
+
+    # ---------------- forward events to shape draw interface----------------
+    def on_3d_left_click(self, pos):
+        print('on_3d_left_click')
+
+        if self.current_tool:
+            self.current_tool.on_left_click(pos)
+            self.crop_direction = self.cloud_view.get_current_front()
+
+
+    def on_3d_right_click(self, pos):
+        print('on_3d_right_click')
+
+        if self.current_tool:
+            self.current_tool.on_right_click()
+
+
+#########################################
 
 
     def preview_segment(self, mode=None):
@@ -169,29 +185,32 @@ class CloudController(QObject, BaseController):
             self.cloud_view.display_cloud(points=points, colors="pink", point_size=3, cloud_id="segment_preview", reset_camera=False)
             self.segment_toolbar.enable(names=["clear", "close","exportselection"])
 
+
     def export_segment(self):
         if self.cloud_model and self._segment_indices is not None:
             new_segment = self.cloud_model.create_segment(self._segment_indices, name=None)
-            # self.segmentCreated.emit(new_segment)
-
+            new_segment.set_polygon_indicate(self._segment_indices)
+ 
             event_bus.segment_created.emit(new_segment)
-
             self.cloud_view.clear_cloud("segment_preview")
             self.cloud_view.draw_polygon([])  # Xoá polygon
-            self.polygon_model = None
             self.segment_toolbar.hide()
 
+
     def export_cancel(self):
-        self.clear_polygon()
+        # self.clear_polygon()
+        self.segment_tool.cancel_drawing()
+
         self.segment_toolbar.hide()
+        
 
     def clear_polygon(self):
         """Xoá polygon hiện tại"""
-        self.cloud_view.clear_cloud("segment_preview")
-        self.cloud_view.draw_polygon([])  # Xoá polygon
-        # self.polygon_model = None
-        # self.segment_toolbar.disable()
+        # self.cloud_view.clear_cloud("segment_preview")
+        # self.cloud_view.draw_polygon([])  # Xoá polygon
+        self.segment_tool.clear_points()
         self.start_segment()
+
 
     def cleanup(self):
         self.cloud_model = None
