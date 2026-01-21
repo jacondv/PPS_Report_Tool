@@ -56,6 +56,8 @@ class SegmentToolbarView(ToolBar):
         # self.hide()             # chỉ ẩn dialog
         # super().closeEvent(event)  # gọi base class để dialog thực sự đóng
 
+    def reject(self):
+        pass
 
     # Wrapper tiện dụng
     def enable(self, names=None):
@@ -96,3 +98,4 @@ class SegmentToolbarView(ToolBar):
 
     def _on_btn_clear_clicked(self):
         self.clear.emit()
+

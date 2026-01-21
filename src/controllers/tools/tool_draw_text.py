@@ -69,3 +69,6 @@ class ToolDrawText(Tool):
         self.view.render_shape(self._shape)
         self.toolCompleted.emit(self._shape)
         self._shape = None  # reset tool state
+
+
+  

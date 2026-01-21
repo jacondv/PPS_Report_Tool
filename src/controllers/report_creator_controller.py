@@ -316,6 +316,7 @@ class ReportCreatorController(QObject):
     def on_add_overview_image_changed(self,checked):
         self._show_overview_image = checked
 
+
     def on_annotation_toolbar(self):
         self.annotation_controller.show_annotation_toolbar()
 

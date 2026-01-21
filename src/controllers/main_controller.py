@@ -1,4 +1,5 @@
 # controllers/main_controller.py
+from functools import partial
 
 from PySide6.QtWidgets import QFileDialog
 from controllers.job_data_controller import JobDataController
@@ -50,6 +51,15 @@ class MainController:
         self.main_window.ui.actionCreate_Report.triggered.connect(self.open_report_creator_dialog)
         self.main_window.ui.actionCreate_Report.setEnabled(False)
 
+
+        self.main_window.ui.actionSet_Top_View.triggered.connect(partial(self.cloud_controller.set_view, "top"))
+        self.main_window.ui.actionSet_Bottom_View.triggered.connect(partial(self.cloud_controller.set_view,'bottom'))
+        self.main_window.ui.actionSet_Left_View.triggered.connect(partial(self.cloud_controller.set_view,'left'))
+        self.main_window.ui.actionSet_Right_View.triggered.connect(partial(self.cloud_controller.set_view,'right'))
+        self.main_window.ui.actionSet_Back_View.triggered.connect(partial(self.cloud_controller.set_view,'back'))
+        self.main_window.ui.actionSet_Front_View.triggered.connect(partial(self.cloud_controller.set_view,'front'))
+        self.main_window.ui.actionSet_Isometric.triggered.connect(partial(self.cloud_controller.set_view,'iso'))
+
         # ---------------- Connect main window buttons ----------------
 
         #---------------- Signals handler ----------------
@@ -60,6 +70,7 @@ class MainController:
 
         # Nếu muốn, giữ reference các controller dialog
         self._report_controllers = []
+
 
     def on_enable_create_report_action(self, visible):
         self.main_window.ui.actionCreate_Report.setEnabled(visible)
@@ -88,6 +99,7 @@ class MainController:
     def on_main_window_close(self):
         """Xử lý khi main window đóng: cleanup các controller nếu cần"""
         print("Main window is closing. Cleaning up controllers...")
-        self.cloud_controller.cleanup()
+            
+        # self.cloud_controller.release()
         self.job_controller.close_job()
         self.main_window.close()

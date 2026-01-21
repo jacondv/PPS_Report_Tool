@@ -76,7 +76,7 @@ class PolygonModel:
 
 
     def clear_points(self):
-        if self.points:
+        if self.points is not None:
             self.points = []
 
 

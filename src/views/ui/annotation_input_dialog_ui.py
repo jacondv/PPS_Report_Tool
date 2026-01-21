@@ -132,14 +132,18 @@ class AnnotationInputDialog(QDialog):
         """
         parent = self.parentWidget()
         pr = parent.rect()
-
+        w = pr.width()
+        h = pr.height()
+        
+        px = x * w
         #  Invert Y (Qt -> bottom-left)
-        qt_y = pr.bottom() - y
-        # y = parent.height() - y
+        py = (1.0 - y) * h
 
+        px = max(0, min(px, w))
+        py = max(0, min(py, h))
         if parent is None:
             raise RuntimeError("Dialog has no parent")
 
-        global_pos = parent.mapToGlobal(QPoint(int(x), int(qt_y)))
+        global_pos = parent.mapToGlobal(QPoint(int(px), int(py)))
 
         self.move(global_pos)

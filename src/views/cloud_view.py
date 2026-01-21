@@ -1,6 +1,7 @@
 from PySide6.QtWidgets import QVBoxLayout, QWidget
 from PySide6.QtCore import Signal, Qt, QEvent
 
+
 from pyvistaqt import QtInteractor
 import pyvista as pv
 import numpy as np
@@ -13,10 +14,9 @@ from views.components.save_plotter import SafePlotter
 
 from views.components.overlay_factory import OverlayFactory
 
-VIEW_MODE = 0
-SEGMENT_MODE = 1
-ANNOTATION_MODE = 2
-
+# VIEW_MODE = 0
+SCALE = 1
+SCREEN_SCALE = 1.0
 class CloudView(QWidget):
 
     leftClicked = Signal(object)
@@ -41,7 +41,7 @@ class CloudView(QWidget):
         self._camera_locked = False
 
         # Working mode
-        self.mode = VIEW_MODE
+        # self.mode = VIEW_MODE
         self.is_editing =False
 
         # --- Polygon picking attributes ---
@@ -57,8 +57,20 @@ class CloudView(QWidget):
         self._drag_threshold = 5  # pixels
 
         # tạo QtInteractor
+  
+        self.container = QWidget(self.placeholder_widget)
+        self.container.setObjectName("vtk_container")
+        layout = QVBoxLayout(self.container)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
+
+        self.plotter_widget = QtInteractor(self.container)
+        layout.addWidget(self.plotter_widget)
+
         self._cloud_actors: dict[str, pv.Actor] = {}  # cloud_id -> actor
-        self.plotter_widget = QtInteractor(placeholder_widget)
+
+ 
+
         self.plotter_widget.set_background('black')
 
         # self.plotter_widget.setFixedSize(800, 600)
@@ -120,6 +132,62 @@ class CloudView(QWidget):
         self.plotter_widget.installEventFilter(self)
 
 
+
+    def normalize_pos(self,pos):
+        rw = self.plotter_widget.GetRenderWindow()
+        x, y = pos
+        w,h = rw.GetSize()
+        scale =  1/self.get_screen_scale()
+        norm_pos = (scale*x/w, scale*y/h)
+        return norm_pos
+    
+    def denormalize_pos(self, norm_pos):
+        rw = self.plotter_widget.GetRenderWindow()
+        w,h = rw.GetSize()
+        nx, ny = norm_pos
+        world_pos = (int(nx*w), int(ny*h))
+        return world_pos
+
+    def get_mouse_pos(self, normal=True):
+        x2d, y2d = self.plotter_widget.iren.get_event_position()
+        if normal:
+            norm_pos = self.normalize_pos((x2d, y2d))
+        else:
+            norm_pos = (x2d, y2d)
+        return norm_pos
+    
+    def get_screen_scale(self):
+        scale = self.plotter_widget.devicePixelRatioF()
+        return scale
+
+    def set_view(self, view: str):
+        """
+        view: 'top', 'bottom', 'front', 'back', 'left', 'right', 'iso'
+        """
+
+        p = self.plotter_widget
+
+        views = {
+            'top':      [(0, 0, 1),     (0, 0, 0), (1, 0, 0)],
+            'bottom':   [(0, 0, -1),    (0, 0, 0), (-1, 0, 0)],
+            'back':     [(1, 0, 0),     (0, 0, 0), (0, 0, 1)],
+            'front':    [(-1, 0, 0),    (0, 0, 0), (0, 0, 1)],
+            'right':    [(0, -1, 0),    (0, 0, 0), (0, 0, 1)],
+            'left':     [(0, 1, 0),     (0, 0, 0), (0, 0, 1)],
+            'iso':      [(-1, 1, 1),    (0, 0, 0), (0, 0, 1)],
+        }
+
+
+        if view in views:
+            direction, focal, up = views[view]
+            p.camera_position = [direction, focal, up]
+        else:
+            raise ValueError(f"Unknown view: {view}")
+
+        p.reset_camera()
+        p.render()
+
+
     def eventFilter(self, obj, event):
 
         if obj == self.plotter_widget:
@@ -130,8 +198,9 @@ class CloudView(QWidget):
                     # y = _height - event.pos().y()
 
                     # self.leftPressed.emit((x, y))
-                    x2d, y2d = self.plotter_widget.iren.get_event_position()
-                    self.leftPressed.emit((x2d, y2d))
+                    # x2d, y2d = self.plotter_widget.iren.get_event_position()
+                    norm_pos = self.get_mouse_pos()
+                    self.leftPressed.emit(norm_pos)
 
 
             elif event.type() == QEvent.MouseButtonRelease:
@@ -140,20 +209,23 @@ class CloudView(QWidget):
                     # _height = self.placeholder_widget.height()
                     # y = _height - event.pos().y()
                     # self.leftReleased.emit((x, y))
-                    x2d, y2d = self.plotter_widget.iren.get_event_position()
-                    self.leftReleased.emit((x2d, y2d))
+                    # x2d, y2d = self.plotter_widget.iren.get_event_position()
+                    norm_pos = self.get_mouse_pos()
+                    self.leftReleased.emit(norm_pos)
 
             elif event.type() == QEvent.MouseMove:
                 # x = event.pos().x()
                 # _height = self.placeholder_widget.height()
                 # y = _height - event.pos().y()
                 # self.mouseMoved.emit((x, y))
-                x2d, y2d = self.plotter_widget.iren.get_event_position()
-                self.mouseMoved.emit((x2d, y2d))
+                # x2d, y2d = self.plotter_widget.iren.get_event_position()
+                norm_pos = self.get_mouse_pos()
+
+                self.mouseMoved.emit(norm_pos)
                 
                 # --- CHECK LEFT BUTTON IS PRESSED → DRAG ---
                 if event.buttons() & Qt.LeftButton:
-                    self.mouseDragged.emit((x2d, y2d))
+                    self.mouseDragged.emit(norm_pos)
 
 
         return super().eventFilter(obj, event)
@@ -188,10 +260,11 @@ class CloudView(QWidget):
         """Thông báo Controller về click trái"""
 
         #Emit su kien leftclick
-        x2d, y2d = self.plotter_widget.iren.get_event_position()
-        self.leftClicked.emit((x2d, y2d))
+        # x2d, y2d = self.plotter_widget.iren.get_event_position()
+        # norm_pos = self.normalize_pos((x2d, y2d))
+        norm_pos = self.get_mouse_pos()
+        self.leftClicked.emit(norm_pos)
         self.leftClicked3D.emit(pos)
-
         # if self.is_drawing_polygon:
         # if self.on_left_click:
         #     self.on_left_click(pos)
@@ -199,7 +272,8 @@ class CloudView(QWidget):
 
     def _on_left_double_click(self, pos, *args):
         x2d, y2d = self.plotter_widget.iren.get_event_position()
-        QTimer.singleShot(100, lambda: self.leftDoubleClick.emit((x2d, y2d)))
+        norm_pos = self.get_mouse_pos()
+        QTimer.singleShot(100, lambda: self.leftDoubleClick.emit(norm_pos))
         
         
     def _right_click(self, pos, *args):
@@ -232,7 +306,7 @@ class CloudView(QWidget):
     def capture_current_view(self):
         return self.plotter_widget.screenshot(
             return_img=True,
-            scale=1)
+            scale=SCALE)
 
 
     def enable(self, value=True):
@@ -386,6 +460,12 @@ class CloudView(QWidget):
         self._cloud_actors.clear()
         self.plotter_widget.reset_camera()
 
+    def release(self):
+        rw = self.plotter_widget.render_window
+        rw.RemoveAllObservers()
+        rw.Finalize()
+        self.plotter_widget = None
+        
     # =========================
     # Anotation
     # =========================
@@ -427,18 +507,19 @@ class CloudView(QWidget):
         # kiểm tra xem text actor đã tồn tại chưa
         actor = self._text_actors.get(name)
         font_size = kwargs.get('font_size', 11)
-
+        x,y = self.denormalize_pos(pos)
         if actor:
             # update text và vị trí
             actor.SetInput(text)
-            actor.SetDisplayPosition(int(pos[0]), int(pos[1]))
+            x,y = self.denormalize_pos(pos)
+            actor.SetDisplayPosition(int(x), int(y))
             actor.GetTextProperty().SetFontSize(font_size)
             actor.GetTextProperty().SetColor(self._color_to_rgb(color))
         else:
             # tạo actor mới
             actor = vtk.vtkTextActor()
             actor.SetInput(text)
-            actor.SetDisplayPosition(int(pos[0]), int(pos[1]))
+            actor.SetDisplayPosition(int(x), int(y))
             actor.GetTextProperty().SetFontSize(font_size)
             actor.GetTextProperty().SetColor(self._color_to_rgb(color))
             actor.GetTextProperty().SetShadow(False)
@@ -457,8 +538,9 @@ class CloudView(QWidget):
             self.overlay_renderer.RemoveActor(self._shape_actors[name])
         
         # Gọi Factory để lấy Actor mới
+        points_2d = [ self.denormalize_pos((nx, ny)) for nx, ny in points_2d]
 
-        actor = OverlayFactory.create_polyline(points_2d,**kwargs)
+        actor = OverlayFactory.create_polyline(points_2d,plotter_widget=self.plotter_widget,**kwargs)
         
         self.overlay_renderer.AddActor(actor)
         # self.plotter_widget.render()

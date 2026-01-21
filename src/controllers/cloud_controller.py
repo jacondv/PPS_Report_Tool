@@ -1,4 +1,5 @@
 # controllers/cloud_controller.py
+from functools import partial
 
 from event_bus import event_bus
 from PySide6.QtCore import QObject, Signal
@@ -32,7 +33,7 @@ class CloudController(QObject, BaseController):
         # # Segment toolbar
         self.segment_toolbar = SegmentToolbarView(self.cloud_view.placeholder_widget)
         self.segment_toolbar.hide()
-        self.segment_toolbar.segment_in.connect(lambda: self.preview_segment("in"))
+        self.segment_toolbar.segment_in.connect(partial(self.preview_segment,"in"))
         self.segment_toolbar.export_selected.connect(self.export_segment)
         self.segment_toolbar.cancel.connect(self.export_cancel)
         self.segment_toolbar.clear.connect(self.clear_polygon)
@@ -115,6 +116,11 @@ class CloudController(QObject, BaseController):
         self.cloud_view.clear_cloud(cloud_id)
 
 
+    def set_view(self,view:str):
+        if not self.cloud_view:
+            return
+        self.cloud_view.set_view(view)
+
 ########################################
 
 
@@ -145,6 +151,7 @@ class CloudController(QObject, BaseController):
         self.segment_toolbar.disable()
         self.set_tool(self.segment_tool)
         
+        
 
     def on_draw_polygon_completed(self, polygon):
         self.set_tool(None)
@@ -161,15 +168,12 @@ class CloudController(QObject, BaseController):
 
     # ---------------- forward events to shape draw interface----------------
     def on_3d_left_click(self, pos):
-        print('on_3d_left_click')
-
         if self.current_tool:
             self.current_tool.on_left_click(pos)
             self.crop_direction = self.cloud_view.get_current_front()
 
 
     def on_3d_right_click(self, pos):
-        print('on_3d_right_click')
 
         if self.current_tool:
             self.current_tool.on_right_click()
@@ -200,8 +204,8 @@ class CloudController(QObject, BaseController):
     def export_cancel(self):
         # self.clear_polygon()
         self.segment_tool.cancel_drawing()
-
         self.segment_toolbar.hide()
+        self._segment_indices = None
         
 
     def clear_polygon(self):
@@ -216,4 +220,6 @@ class CloudController(QObject, BaseController):
         self.cloud_model = None
         self.cloud_view.cleanup()
 
-  
+
+    def release(self):
+        self.cloud_view.release()

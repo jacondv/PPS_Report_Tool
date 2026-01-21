@@ -40,6 +40,12 @@ class ToolEditLine(Tool):
         start_w = (shape.start[0] + ox, shape.start[1] + oy)
         end_w   = (shape.end[0]   + ox, shape.end[1]   + oy)
 
+
+        dx = end_w[0] - start_w[0]
+        dy = end_w[1] - start_w[1]
+        length = math.hypot(dx, dy)
+        HIT_RADIUS = max(0.4*length, 0.01)
+
         if distance(start_w, pos) <= HIT_RADIUS:
             return DragHandle.START
         if distance(end_w, pos) <= HIT_RADIUS:

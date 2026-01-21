@@ -48,16 +48,20 @@ class Shape2D(abc.ABC):
         pts = self.world_points()
         xmin, ymin = pts.min(axis=0)
         xmax, ymax = pts.max(axis=0)
-        self.bbox = (int(xmin), int(ymin), int(xmax), int(ymax))
+
+        # self.bbox = (int(xmin), int(ymin), int(xmax), int(ymax))
+        self.bbox = (xmin, ymin, xmax, ymax)
         return self.bbox
 
     # ---------- Hit test ----------
     def contains(self, pos: Tuple[int, int]) -> bool:
+        
         if self.bbox[0] is None:
             self.update_bbox()
 
         x, y = pos
         x1, y1, x2, y2 = self.bbox
+        # print('x1, y1, x2, y2',x1, y1, x2, y2, 'self.bbox',self.bbox)
         return x1 <= x <= x2 and y1 <= y <= y2
 
 
@@ -92,6 +96,8 @@ class Text2D(Shape2D):
         """
         width = max(len(self.text) * self.char_width, 10)
         height = self.line_height
+
+
         # top-left và bottom-right
         return np.array([
             [0, 0],
@@ -165,18 +171,28 @@ class Shape2DModel:
         best_dist = float("inf")
         
         for shape in self.shapes:
-            if not shape.contains(pos):
-                continue
+            
+            if shape.type == 'line':
+                if not shape.contains(pos):
+                    continue
 
-            # dùng bbox trung tâm để tính khoảng cách
-            x1, y1, x2, y2 = shape.bbox
-            cx = (x1 + x2) / 2
-            cy = (y1 + y2) / 2
+                # dùng bbox trung tâm để tính khoảng cách
+                x1, y1, x2, y2 = shape.bbox
+                cx = (x1 + x2) / 2
+                cy = (y1 + y2) / 2
 
-            d = (pos[0] - cx) ** 2 + (pos[1] - cy) ** 2
-            if d < best_dist:
-                best_dist = d
-                best_shape = shape
+                d = (pos[0] - cx) ** 2 + (pos[1] - cy) ** 2
+                if d < best_dist:
+                    best_dist = d
+                    best_shape = shape
+            
+            if shape.type == 'text':
+                cx, cy = shape.offset
+
+                d = (pos[0] - cx) ** 2 + (pos[1] - cy) ** 2
+                if d < best_dist and d < 0.02:
+                    best_dist = d
+                    best_shape = shape
 
         return best_shape
 

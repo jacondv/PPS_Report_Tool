@@ -101,3 +101,4 @@ class MainWindow(QMainWindow):
         """
         self.closeRequested.emit()
         event.ignore() 
+        # event.accept()
