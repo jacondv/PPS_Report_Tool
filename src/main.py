@@ -19,7 +19,7 @@ def main():
 
     main_controller = MainController(main_window)
 
-    main_window.show()
+    main_window.showMaximized()
 
     sys.exit(app.exec())
 

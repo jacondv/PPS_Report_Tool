@@ -6,21 +6,224 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>944</width>
-    <height>761</height>
+    <width>1055</width>
+    <height>661</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">border: 1px solid rgb(170, 170, 170);
+   <string notr="true">/* =========================
+   GLOBAL
+========================= */
+QMainWindow {
+    background-color: #f5f6f8;
+    color: #2b2b2b;
+    font-family: &quot;Segoe UI&quot;, &quot;Roboto&quot;, &quot;Arial&quot;;
+    font-size: 12px;
+}
+
+/* =========================
+   CENTRAL WIDGET
+========================= */
+QWidget#centralwidget {
+    background-color: #f5f6f8;
+}
+
+/* =========================
+   TOOLBAR
+========================= */
+QToolBar {
+    background: #ffffff;
+    border-bottom: 1px solid #dcdcdc;
+    spacing: 6px;
+    padding: 4px;
+}
+
+QToolButton {
+    background-color: transparent;
+    border: 1px solid transparent;
+    padding: 6px 10px;
+    border-radius: 4px;
+}
+
+QToolButton:hover {
+    background-color: #e8f1fb;
+    border: 1px solid #c9def4;
+}
+
+QToolButton:pressed {
+    background-color: #0078d7;
+    border: 1px solid #0078d7;
+    color: #ffffff;
+}
+
+/* =========================
+   MENU BAR
+========================= */
+QMenuBar {
+    background-color: #ffffff;
+    color: #2b2b2b;
+    border-bottom: 1px solid #dcdcdc;
+}
+
+QMenuBar::item:selected {
+    background-color: #e8f1fb;
+}
+
+QMenu {
+    background-color: #ffffff;
+    border: 1px solid #dcdcdc;
+}
+
+QMenu::item:selected {
+    background-color: #0078d7;
+    color: #ffffff;
+}
+
+/* =========================
+   DOCK WIDGET
+========================= */
+QDockWidget {
+    background-color: #ffffff;
+}
+
+QDockWidget::title {
+    background: #f0f2f5;
+    padding: 6px;
+    border-bottom: 1px solid #dcdcdc;
+    font-weight: bold;
+}
+
+QDockWidget::close-button,
+QDockWidget::float-button {
+    border: none;
+    background: transparent;
+}
+
+QDockWidget::close-button:hover,
+QDockWidget::float-button:hover {
+    background: #e8f1fb;
+}
+
+/* =========================
+   TREE WIDGET
+========================= */
+QTreeWidget {
+    background-color: #ffffff;
+    alternate-background-color: #f6f8fa;
+    border: 1px solid #dcdcdc;
+    padding: 4px;
+}
+
+QTreeWidget::item {
+    padding: 4px;
+}
+
+QTreeWidget::item:selected {
+    background-color: #cfe5ff;
+    color: #000000;
+}
+
+QHeaderView::section {
+    background-color: #f0f2f5;
+    color: #333333;
+    padding: 4px;
+    border: 1px solid #dcdcdc;
+}
+
+/* =========================
+   LIST WIDGET
+========================= */
+QListWidget {
+    background-color: #ffffff;
+    border: 1px solid #dcdcdc;
+}
+
+QListWidget::item {
+    padding: 6px;
+}
+
+QListWidget::item:selected {
+    background-color: #cfe5ff;
+    color: #000000;
+}
+
+/* =========================
+   SPLITTER
+========================= */
+QSplitter::handle {
+    background-color: #dcdcdc;
+}
+
+QSplitter::handle:hover {
+    background-color: #0078d7;
+}
+
+/* =========================
+   STATUS BAR
+========================= */
+QStatusBar {
+    background-color: #f0f2f5;
+    border-top: 1px solid #dcdcdc;
+    color: #333333;
+}
+
+/* =========================
+   SCROLL BAR
+========================= */
+QScrollBar:vertical {
+    background: #f0f2f5;
+    width: 12px;
+}
+
+QScrollBar::handle:vertical {
+    background: #c4c4c4;
+    border-radius: 6px;
+}
+
+QScrollBar::handle:vertical:hover {
+    background: #0078d7;
+}
+
+QScrollBar::add-line:vertical,
+QScrollBar::sub-line:vertical {
+    background: none;
+}
+
+/* =========================
+   CLOUD VIEW PLACEHOLDER
+========================= */
+QWidget#cloud_viewer {
+    background-color: #ffffff;
+    border: 1px solid #cfcfcf;
+}
 </string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout_4">
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
     <item>
-     <widget class="QWidget" name="cloud_viewer" native="true"/>
+     <widget class="QWidget" name="cloud_viewer" native="true">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>
@@ -34,41 +237,16 @@
    </attribute>
    <widget class="QWidget" name="dockWidgetContents">
     <layout class="QVBoxLayout" name="verticalLayout">
+     <property name="bottomMargin">
+      <number>0</number>
+     </property>
      <item>
       <widget class="QSplitter" name="splitter">
        <property name="orientation">
         <enum>Qt::Vertical</enum>
        </property>
        <widget class="QTreeWidget" name="treeJobData"/>
-       <widget class="QListWidget" name="listJobProperty"/>
       </widget>
-     </item>
-    </layout>
-   </widget>
-  </widget>
-  <widget class="QDockWidget" name="dockWidget_2">
-   <attribute name="dockWidgetArea">
-    <number>8</number>
-   </attribute>
-   <widget class="QWidget" name="dockWidgetContents_2">
-    <layout class="QVBoxLayout" name="verticalLayout_3">
-     <item>
-      <widget class="QListWidget" name="listStatus"/>
-     </item>
-    </layout>
-   </widget>
-  </widget>
-  <widget class="QDockWidget" name="dockWidget_3">
-   <property name="features">
-    <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
-   </property>
-   <attribute name="dockWidgetArea">
-    <number>2</number>
-   </attribute>
-   <widget class="QWidget" name="dockWidgetContents_3">
-    <layout class="QVBoxLayout" name="verticalLayout_2">
-     <item>
-      <widget class="QListWidget" name="listReportInfo"/>
      </item>
     </layout>
    </widget>
@@ -77,6 +255,9 @@
    <property name="windowTitle">
     <string>toolBar</string>
    </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonTextUnderIcon</enum>
+   </property>
    <attribute name="toolBarArea">
     <enum>TopToolBarArea</enum>
    </attribute>
@@ -84,60 +265,47 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionOpen_Job"/>
-   <addaction name="actionAlign_Cloud"/>
    <addaction name="actionSegment"/>
    <addaction name="actionCreate_Report"/>
   </widget>
-  <widget class="QMenuBar" name="menubar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>944</width>
-     <height>24</height>
-    </rect>
+  <widget class="QToolBar" name="toolBar_2">
+   <property name="windowTitle">
+    <string>toolBar_2</string>
    </property>
-   <widget class="QMenu" name="menuFile">
-    <property name="title">
-     <string>File</string>
-    </property>
-   </widget>
-   <widget class="QMenu" name="menuView">
-    <property name="title">
-     <string>View</string>
-    </property>
-   </widget>
-   <addaction name="menuFile"/>
-   <addaction name="menuView"/>
+   <attribute name="toolBarArea">
+    <enum>RightToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionSet_Top_View"/>
+   <addaction name="actionSet_Front_View"/>
+   <addaction name="actionSet_Left_View"/>
+   <addaction name="actionSet_Back_View"/>
+   <addaction name="actionSet_Right_View"/>
+   <addaction name="actionSet_Bottom_View"/>
+   <addaction name="actionSet_Isometric"/>
   </widget>
   <action name="actionOpen_Job">
    <property name="icon">
-    <iconset theme="accessories-calculator"/>
+    <iconset resource="resource.qrc">
+     <normaloff>:/icon/icon/open-folder.png</normaloff>:/icon/icon/open-folder.png</iconset>
    </property>
    <property name="text">
     <string>Open Job</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
    </property>
    <property name="menuRole">
     <enum>QAction::TextHeuristicRole</enum>
    </property>
   </action>
-  <action name="actionAlign_Cloud">
-   <property name="text">
-    <string>Align Cloud</string>
-   </property>
-   <property name="menuRole">
-    <enum>QAction::NoRole</enum>
-   </property>
-  </action>
-  <action name="actionSegment">
-   <property name="text">
-    <string>Segment</string>
-   </property>
-   <property name="menuRole">
-    <enum>QAction::NoRole</enum>
-   </property>
-  </action>
   <action name="actionCreate_Report">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/icon/icon/report.png</normaloff>:/icon/icon/report.png</iconset>
+   </property>
    <property name="text">
     <string>Create Report</string>
    </property>
@@ -145,7 +313,117 @@
     <enum>QAction::NoRole</enum>
    </property>
   </action>
+  <action name="actionSegment">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/icon/icon/crop.png</normaloff>:/icon/icon/crop.png</iconset>
+   </property>
+   <property name="text">
+    <string>Segment</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::NoRole</enum>
+   </property>
+  </action>
+  <action name="actionSet_Top_View">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/icon/icon/top.png</normaloff>:/icon/icon/top.png</iconset>
+   </property>
+   <property name="text">
+    <string>Top</string>
+   </property>
+   <property name="toolTip">
+    <string>Top view</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::NoRole</enum>
+   </property>
+  </action>
+  <action name="actionSet_Front_View">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/icon/icon/front.png</normaloff>:/icon/icon/front.png</iconset>
+   </property>
+   <property name="text">
+    <string>Front</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::NoRole</enum>
+   </property>
+  </action>
+  <action name="actionSet_Left_View">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/icon/icon/left.png</normaloff>:/icon/icon/left.png</iconset>
+   </property>
+   <property name="text">
+    <string>Left</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::NoRole</enum>
+   </property>
+  </action>
+  <action name="actionSet_Right_View">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/icon/icon/right.png</normaloff>:/icon/icon/right.png</iconset>
+   </property>
+   <property name="text">
+    <string>Right</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::NoRole</enum>
+   </property>
+  </action>
+  <action name="actionSet_Back_View">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/icon/icon/back.png</normaloff>:/icon/icon/back.png</iconset>
+   </property>
+   <property name="text">
+    <string>Back</string>
+   </property>
+   <property name="toolTip">
+    <string>Back</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::NoRole</enum>
+   </property>
+  </action>
+  <action name="actionSet_Bottom_View">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/icon/icon/bottom.png</normaloff>:/icon/icon/bottom.png</iconset>
+   </property>
+   <property name="text">
+    <string>Bottom</string>
+   </property>
+   <property name="toolTip">
+    <string>Bottom</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::NoRole</enum>
+   </property>
+  </action>
+  <action name="actionSet_Isometric">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/icon/icon/iso.png</normaloff>:/icon/icon/iso.png</iconset>
+   </property>
+   <property name="text">
+    <string>ISO</string>
+   </property>
+   <property name="toolTip">
+    <string>Isometric</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::NoRole</enum>
+   </property>
+  </action>
  </widget>
- <resources/>
+ <resources>
+  <include location="resource.qrc"/>
+ </resources>
  <connections/>
 </ui>

@@ -13,7 +13,7 @@ env/
 .idea/
 *.sublime-project
 *.sublime-workspace
-
+*.code-workspace
 # Python egg / dist
 *.egg
 *.egg-info/
@@ -45,3 +45,8 @@ data/
 # Temporary files
 *.tmp
 *.swp
+
+# resources
+*.qrc
+designer/resource_rc.py
+designer/resources_rc.py

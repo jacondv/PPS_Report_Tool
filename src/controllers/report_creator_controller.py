@@ -156,7 +156,7 @@ class ReportCreatorController(QObject):
             if not isinstance(cloud_id, list):
                 cloud_id = [cloud_id]
 
-            for cid in cloud_id:
+            for cid in cloud_id[0:1]:
                 cloud_model = self.job_service.get_cloud_model(cid)
                 if cloud_model:
                     self.cloud_controller.cleanup()
@@ -270,7 +270,6 @@ class ReportCreatorController(QObject):
         _high = new_thickness + new_tolerance
 
         cloud = assign_colors(cloud,highlight_range=(_low, _high))
-        
         cloud_model.set_cloud(cloud)
 
         

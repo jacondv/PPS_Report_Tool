@@ -131,8 +131,6 @@ class CloudView(QWidget):
         self.plotter_widget.track_click_position(self._right_click, side='right')
         self.plotter_widget.installEventFilter(self)
 
-
-
     def normalize_pos(self,pos):
         rw = self.plotter_widget.GetRenderWindow()
         x, y = pos
@@ -457,6 +455,7 @@ class CloudView(QWidget):
     def cleanup(self):
         for actor in self._cloud_actors.values():
             self.plotter_widget.remove_actor(actor)
+
         self._cloud_actors.clear()
         self.plotter_widget.reset_camera()
 
