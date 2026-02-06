@@ -1,6 +1,7 @@
 
 import numpy as np
-from pps_shared.helper import surface_area
+from pps_shared.helper import surface_area, filter_pcd_by_distance
+AREA_SCALE = 0.9 # nếu cần scale diện tích
 
 class PLYProcessor:
     def __init__(self):
@@ -8,6 +9,14 @@ class PLYProcessor:
         self.pcd = None
         self.target_thickness = 0
         self.tolerance = 0
+
+        self._area_total = 0.0
+        self._area_complete = 0.0
+        self._avg_thickness = 0.0
+        self._volume = 0.0
+        self._distribution_chart_img = None
+        self._tunnel_view_img = None
+
 
     def load(self, ply_path):
         import open3d as o3d
@@ -27,6 +36,8 @@ class PLYProcessor:
             if "distances" not in pcd.point:
                 raise ValueError("PLY file doesn't contain the [distances] field.")
             self.distances = np.abs(pcd.point["distances"].numpy())
+
+
         except Exception as e:
             print(f"Input cloud is not in Open3D Tensor format. {e}")
             return None
@@ -37,13 +48,41 @@ class PLYProcessor:
     def set_parameters(self, target_thickness, tolerance):
         self.target_thickness = target_thickness
         self.tolerance = tolerance
+        
+        self._process()
+
+    def _process(self):
+        import open3d as o3d
+        # Calculate total area
+        self._area_total = surface_area(self.pcd, radii=(0.1, 0.15)) * AREA_SCALE
+
+        # Calculate area meeting the required thickness     
+        min_thickness_mm = max(self.target_thickness - 1 * self.tolerance,20)
+        filtered_pcd = filter_pcd_by_distance(self.pcd, d_min=min_thickness_mm, d_max=500)
+
+        o3d.t.io.write_point_cloud(
+            r"C:\WORK\projects\PPS_Report_Tool\data\filtered_cloud.ply",
+            filtered_pcd
+        )
+        self._area_complete = surface_area(filtered_pcd, radii=(0.1, 0.15)) * AREA_SCALE  # m²
+
+        # Calculate average thickness
 
 
-    def get_header(self):
-        header = {
-            
-        }
-        return 
+        # mask valid distances
+        abs_dist = np.abs(self.distances)
+        mask_valid = (abs_dist >= min_thickness_mm)
+        valid_ratio = np.mean(mask_valid) * 100
+
+        MIN_VALID_RATIO = 1.0  # % – chỉnh theo yêu cầu kỹ thuật
+        if valid_ratio < MIN_VALID_RATIO:
+            self._avg_thickness = 0
+            self._volume = 0
+            return # quá ít điểm hợp lệ, bỏ qua
+        else:
+            self._avg_thickness = np.mean(self.distances[mask_valid]) #mm
+            self._volume = self._area_complete * self._avg_thickness / 1000.0   # m² * m = m³
+
 
 
     def export_distribution_chart(self,bins, save_path=None):
@@ -58,62 +97,18 @@ class PLYProcessor:
         return img_base64
     
 
-    def avg_thickness(self):
-        if self.distances is None or self.distances.size == 0:
-            return None
-
-        min_thickness_mm = max(self.target_thickness - 3 * self.tolerance, 20)
-
-        abs_dist = np.abs(self.distances)
-        mask_valid = (abs_dist >= min_thickness_mm)
-
-        valid_ratio = np.mean(mask_valid) * 100  # %
-
-        MIN_VALID_RATIO = 1.0  # % – chỉnh theo yêu cầu kỹ thuật
-        if valid_ratio < MIN_VALID_RATIO:
-            return 0
-
-        print(f"valid_ratio is {valid_ratio}")
-        average_thickness = np.mean(self.distances[mask_valid])
-        print(f"average_thickness is {average_thickness}mm")
-
-        return average_thickness
+    def avg_thickness(self): # return in mm
+        return self._avg_thickness
 
     def area(self):
-        area = surface_area(self.pcd, radii=(0.1, 0.15))
-        return area
+        return self._area_total
+
+    def area_complete(self):
+        return self._area_complete
+
 
     def volume(self):
-        """
-        Estimate sprayed volume (m³) from distance map.
-        Distances are in mm.
-        """
-        if self.distances is None or self.distances.size == 0:
-            return None  # hoặc 0.0 nếu pipeline bắt buộc number
-
-        # minimum valid thickness (mm)
-        min_thickness_mm = max(self.target_thickness - 3 * self.tolerance,20)
-
-        # mask valid distances
-        abs_dist = np.abs(self.distances)
-        mask_valid = (abs_dist >= min_thickness_mm)
-        valid_ratio = np.mean(mask_valid) * 100
-
-        MIN_VALID_RATIO = 1.0  # % – chỉnh theo yêu cầu kỹ thuật
-        if valid_ratio < MIN_VALID_RATIO:
-            return 0  # không đủ dữ liệu để ước tính
-
-        # keep only valid distances
-        valid_dist_m = np.zeros_like(self.distances, dtype=float)
-        valid_dist_m[mask_valid] = self.distances[mask_valid] / 1000.0  # mm → m
-
-        cell_area = 0.02 * 0.02  # m² per point
-        volume_m3 = np.sum(valid_dist_m) * cell_area
-
-        print(f"valid_ratio is {valid_ratio}")
-        print(f"volume_m3 is {volume_m3}m3")
-
-        return volume_m3
+        return self._volume
     
     
     def __plot_distance_distribution(self,distances, bins, save_path=None):

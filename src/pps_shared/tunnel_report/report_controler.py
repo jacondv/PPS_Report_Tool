@@ -54,7 +54,7 @@ class ReportGenerator:
         }
 
 
-    def create_pdf(self, report_data, output_path, debug_html=True):
+    def create_pdf(self, report_data, output_path, debug_html=False):
         try:
             os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
@@ -169,11 +169,11 @@ class ReportGenerator:
             #TODO need to change
             tunnel_over_view_img = None
         
-        shotcrete_volume = round(processor.volume(),3)
+        shotcrete_volume = round(processor.volume(),2)
         avg_thickness = round(processor.avg_thickness(),0)
         surface_area = round(processor.area(),0)
+        complete_area = round(processor.area_complete(),0)
         
-
         data = ReportData.from_inputs(
             site_name=site_name,
             job_name=job_name,
@@ -181,6 +181,7 @@ class ReportGenerator:
             tolerance=tolerance,
             avg_thickness=avg_thickness,
             surface_area=surface_area,
+            complete_area=complete_area,
             shotcrete_volume=shotcrete_volume,
             logo=LOGO_REPORT_FILE_PATH,
             tunnel_view=tunnel_view_img,

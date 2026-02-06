@@ -67,7 +67,6 @@ def assign_colors(tcloud, clip_max=150, highlight_range=(20, 40)):
 
 
 
-
 def surface_area(
     pcd,
     radii=(0.05, 0.07, 0.1),
@@ -91,13 +90,23 @@ def surface_area(
         Diện tích bề mặt (đơn vị theo cloud)
     """
     import open3d as o3d
+    import copy
 
+    pcd = copy.deepcopy(pcd)
 
     if isinstance(pcd, o3d.t.geometry.PointCloud):
         pcd = pcd.to_legacy()
     
 
     pcd = pcd.voxel_down_sample(voxel_size=min(radii) / 2)
+
+    if len(pcd.points) < 20:
+        # Quá ít điểm để tính diện tích
+        return 0.0
+
+    cl, ind = pcd.remove_radius_outlier(nb_points=8, radius=2*min(radii))
+    pcd = pcd.select_by_index(ind)
+
 
     if estimate_normals:
         pcd.estimate_normals(
@@ -116,3 +125,51 @@ def surface_area(
     # Tính diện tích
     area = mesh.get_surface_area()
     return area
+
+
+
+import open3d as o3d
+
+
+def filter_pcd_by_distance(pcd: o3d.t.geometry.PointCloud,
+                           d_min: float,
+                           d_max: float) -> o3d.t.geometry.PointCloud:
+    """
+    Trích xuất point cloud theo trường 'distances'
+    
+    Parameters
+    ----------
+    pcd : o3d.t.geometry.PointCloud
+        Point cloud tensor đầu vào (phải có field 'distances')
+    d_min : float
+        Ngưỡng nhỏ nhất
+    d_max : float
+        Ngưỡng lớn nhất
+    
+    Returns
+    -------
+    pcd_out : o3d.t.geometry.PointCloud
+        Cloud đã được lọc, giữ nguyên các field khác
+    """
+    import copy
+
+    if not isinstance(pcd, o3d.t.geometry.PointCloud):
+        raise TypeError("Input must be o3d.t.geometry.PointCloud")
+
+    if "distances" not in pcd.point:
+        raise KeyError("PointCloud does not contain 'distances' field")
+
+    # Clone để tránh side-effect
+    pcd_out = copy.deepcopy(pcd)
+
+    # mask có shape (N, 1) nhưng TensorMap.__getitem__() CHỈ chấp nhận mask dạng (N,)
+    distances = pcd_out.point["distances"][:, 0].abs()
+    distances_abs = distances.abs()
+
+    # Boolean mask
+    mask = (distances_abs >= d_min) & (distances_abs <= d_max)
+
+    # Áp mask cho toàn bộ point attributes
+    pcd_out = pcd_out.select_by_mask(mask)
+
+    return pcd_out

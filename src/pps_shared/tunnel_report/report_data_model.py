@@ -61,6 +61,7 @@ class ReportData:
         obj.avg_thickness = avg_thickness
         obj.shotcrete_volume = shotcrete_volume
         obj.surface_area = surface_area
+        obj.complete_area = kwargs.get("complete_area")
 
         # Optional
         obj.date = kwargs.get("date")
@@ -122,6 +123,7 @@ class ReportData:
             "job_name": self.job_name,
             "avg_thickness": self.avg_thickness,
             'surface_area': self.surface_area,
+            "complete_area": self.complete_area,
             "date": self.date,
             "time": self.time,
             "shotcrete_volume": self.shotcrete_volume,
